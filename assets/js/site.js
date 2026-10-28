@@ -214,10 +214,13 @@ function initHome(page){
     var track=$('#track');
     var hz=gsap.to(track,{x:function(){return -(track.scrollWidth-window.innerWidth)},ease:'none',scrollTrigger:{trigger:'#teams',start:'top top',end:function(){return '+='+(track.scrollWidth-window.innerWidth)},pin:true,scrub:.8,invalidateOnRefresh:true}});
     $$('.team',track).forEach(function(t){
-      gsap.from($$('.ubars i',t),{scaleY:0,duration:.9,ease:'power3.out',stagger:.05,scrollTrigger:{trigger:t,containerAnimation:hz,start:'left 70%',once:true}});
-      gsap.from($$('.age em',t),{scaleX:0,transformOrigin:'left',duration:1,ease:'power3.out',stagger:.08,scrollTrigger:{trigger:t,containerAnimation:hz,start:'left 70%',once:true}});
-      gsap.from($$('[data-ui]',t),{y:60,rotate:2,opacity:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:t,containerAnimation:hz,start:'left 75%',once:true}});
-      gsap.from($$('h3, .mid, .svcList li, .link, .tl',t),{y:24,opacity:0,duration:.8,ease:'power3.out',stagger:.04,scrollTrigger:{trigger:t,containerAnimation:hz,start:'left 75%',once:true}});
+      /* cards already on screen when the section arrives (wide screens) reveal as it scrolls in; the rest reveal as they slide past */
+      var onScreen=t.offsetLeft<window.innerWidth*.8;
+      function trig(at){return onScreen?{trigger:'#teams',start:'top 70%',once:true}:{trigger:t,containerAnimation:hz,start:'left '+at,once:true}}
+      gsap.from($$('.ubars i',t),{scaleY:0,duration:.9,ease:'power3.out',stagger:.05,scrollTrigger:trig('70%')});
+      gsap.from($$('.age em',t),{scaleX:0,transformOrigin:'left',duration:1,ease:'power3.out',stagger:.08,scrollTrigger:trig('70%')});
+      gsap.from($$('[data-ui]',t),{y:60,rotate:2,opacity:0,duration:1,ease:'power3.out',scrollTrigger:trig('75%')});
+      gsap.from($$('h3, .mid, .svcList li, .link, .tl',t),{y:24,opacity:0,duration:.8,ease:'power3.out',stagger:.04,scrollTrigger:trig('75%')});
     });
   });
   mm.add('(max-width: 900px)',function(){
