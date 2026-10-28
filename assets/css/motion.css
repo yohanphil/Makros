@@ -1,0 +1,96 @@
+/* Makros motion
+   Every keyframe and animation on the site lives in this file. site.css holds layout and colour,
+   site.js runs the cube, the scroll scenes and the page wipes. */
+
+.brand:hover .fT{animation:twT .9s ease both}
+.brand:hover .fL{animation:twL .9s ease both}
+.brand:hover .fR{animation:twR .9s ease both}
+@keyframes twT{33%{fill:var(--mint)}66%{fill:var(--violet)}100%{fill:var(--sky)}}
+@keyframes twL{33%{fill:var(--sky)}66%{fill:var(--mint)}100%{fill:var(--violet)}}
+@keyframes twR{33%{fill:var(--violet)}66%{fill:var(--sky)}100%{fill:var(--mint)}}
+.mq{animation:mq 40s linear infinite}
+.mq.rev{animation-direction:reverse;animation-duration:46s}
+@keyframes mq{to{transform:translateX(-50%)}}
+.scene{margin:0}
+.scene svg{width:100%;height:auto;display:block;overflow:visible}
+.scene .bob,.scene .bobS,.scene .doc,.scene .ripple,.scene .grow,.scene .pop,.scene .heart,.scene .spinSlow,.scene .hub{transform-box:fill-box;transform-origin:center}
+.scene .bob{animation:bob 3.4s ease-in-out infinite;animation-delay:var(--d,0s)}
+.scene .bobS{animation:bob 5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.scene .flowLine{stroke-dasharray:5 9;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.scene .perim{stroke-dasharray:10 14;animation:perim 7s linear infinite}
+@keyframes perim{to{stroke-dashoffset:-240}}
+.scene .ripple{animation:ripple 2.8s ease-out infinite;animation-delay:var(--d,0s)}
+@keyframes ripple{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+.scene .hub{animation:hub 2.8s ease-in-out infinite}
+@keyframes hub{0%,100%{transform:scale(1)}12%{transform:scale(1.06)}24%{transform:scale(1)}}
+.scene .doc{opacity:0;animation:docIn 4.5s cubic-bezier(.6,0,.3,1) infinite;animation-delay:var(--d,0s)}
+@keyframes docIn{0%{transform:translateX(-50px) rotate(-6deg);opacity:0}12%{transform:translateX(0) rotate(-3deg);opacity:1}42%{transform:translateX(0) rotate(0);opacity:1}68%{transform:translateX(198px) scale(.3);opacity:1}74%,100%{transform:translateX(198px) scale(.2);opacity:0}}
+.scene .spinSlow{animation:hub 1.5s ease-in-out infinite}
+.scene .cyc{opacity:0;animation:cyc 18s infinite;animation-delay:var(--d,0s)}
+@keyframes cyc{0%{opacity:0;transform:translateY(6px)}3%,22%{opacity:1;transform:none}25%,100%{opacity:0;transform:none}}
+.scene .grow{transform-origin:50% 100%;animation:grow 4.5s cubic-bezier(.2,.8,.2,1) infinite;animation-delay:var(--d,0s)}
+@keyframes grow{0%,10%{transform:scaleY(0)}34%,86%{transform:scaleY(1)}96%,100%{transform:scaleY(0)}}
+.scene .drawLoop{stroke-dasharray:100;animation:drawLoop 4.5s ease-in-out infinite}
+@keyframes drawLoop{0%,14%{stroke-dashoffset:100}44%,86%{stroke-dashoffset:0}96%,100%{stroke-dashoffset:100}}
+.scene .pop{animation:popT 4.5s ease-out infinite}
+@keyframes popT{0%,40%{transform:scale(0)}48%{transform:scale(1.25)}54%,86%{transform:scale(1)}94%,100%{transform:scale(0)}}
+.scene .heart{opacity:0;animation:sHeart 3s ease-out infinite;animation-delay:var(--d,0s)}
+@keyframes sHeart{0%{transform:translateY(0) scale(.5);opacity:0}15%{transform:translateY(-10px) scale(1);opacity:1}100%{transform:translateY(-110px) scale(.8);opacity:0}}
+.scene .cut{animation:cut 8s infinite}
+@keyframes cut{0%,24.9%{fill:#161C48}25%,49.9%{fill:#136FAE}50%,74.9%{fill:#5A47D6}75%,100%{fill:#0E7560}}
+.scene .prog{transform-box:fill-box;transform-origin:left center;animation:prog 8s linear infinite}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.scene .pen{stroke-dasharray:100;animation:pen 4s linear infinite}
+@keyframes pen{0%{stroke-dashoffset:100;opacity:1}60%,85%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.chips span{animation:chipIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 45ms)}
+@keyframes chipIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.model h3{animation:chipIn .6s cubic-bezier(.2,.8,.2,1) both}
+.ticks li{animation:chipIn .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 80ms)}
+.slab{animation:slab 9s cubic-bezier(.2,.8,.2,1) infinite both}
+.slab.s2{animation-delay:.35s}
+.slab.s3{animation-delay:.7s}
+@keyframes slab{0%{transform:translateY(-46px);opacity:0}9%,84%{transform:none;opacity:1}94%,100%{transform:translateY(-46px);opacity:0}}
+.scan{animation:scan 4.5s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(0)}50%{transform:translateY(160px)}}
+.pp.add{animation:pop 9s cubic-bezier(.2,.8,.2,1) infinite both}
+@keyframes pop{0%{transform:scale(0) rotate(-12deg);opacity:0}9%,78%{transform:none;opacity:1}88%,100%{transform:scale(0);opacity:0}}
+.scene3d{perspective:900px;display:flex;align-items:center;justify-content:center}
+.c3{animation:rot 16s linear infinite}
+@keyframes rot{from{transform:rotateX(-26deg) rotateY(0)}to{transform:rotateX(-26deg) rotateY(360deg)}}
+.vBrand i{animation:sw 3s ease-in-out infinite}
+.vBrand i:nth-child(2){animation-delay:.2s}
+.vBrand i:nth-child(3){animation-delay:.4s}
+.vBrand i:nth-child(4){animation-delay:.6s}
+@keyframes sw{50%{transform:translateY(-16px) rotate(10deg)}}
+.vDeck i:nth-child(1){animation:fanA 4s ease-in-out infinite}
+.vDeck i:nth-child(2){animation:fanB 4s ease-in-out infinite}
+@keyframes fanA{0%,100%{transform:translate(-6%,-6%) rotate(-4deg)}50%{transform:translate(-38%,-4%) rotate(-12deg)}}
+@keyframes fanB{0%,100%{transform:translate(6%,-3%) rotate(4deg)}50%{transform:translate(38%,-2%) rotate(12deg)}}
+.vVideo .ring{animation:ring 2.4s ease-out infinite}
+.vVideo .ring.r2{animation-delay:1.2s}
+@keyframes ring{to{transform:scale(2.8);opacity:0}}
+.ap{animation:spin 12s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flash{animation:flash 4s ease-out infinite}
+@keyframes flash{0%,90%{opacity:0}93%{opacity:.85}100%{opacity:0}}
+.mini3{animation:rot 8s linear infinite}
+.dash{animation:dash 3s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-72}}
+.vMkt i{animation:barUp 2.6s ease-in-out infinite alternate}
+.vMkt i:nth-child(even){animation-delay:.4s}
+@keyframes barUp{from{transform:scaleY(.35)}}
+.heart{animation:heart 2.4s ease-out infinite}
+.heart.h2{animation-delay:.8s}
+.heart.h3{animation-delay:1.6s}
+@keyframes heart{0%{opacity:0;transform:translateY(10px) scale(.6)}30%{opacity:1}100%{opacity:0;transform:translateY(-70px) scale(1.1)}}
+.win i:nth-child(2){animation:uiPulse 3s ease-in-out infinite}
+@keyframes uiPulse{50%{opacity:.35}}
+.cursorI{animation:cur 5s ease-in-out infinite}
+@keyframes cur{0%,100%{transform:translate(0,0)}35%{transform:translate(110px,-30px)}60%{transform:translate(70px,40px)}}
+.sent{animation:chipIn .7s cubic-bezier(.2,.8,.2,1) both}
+.sent path{animation:check .8s .2s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes check{to{stroke-dashoffset:0}}
+.arriving #wipe{animation:wipeSafe 0s 2.5s forwards}
+@keyframes wipeSafe{to{visibility:hidden}}
