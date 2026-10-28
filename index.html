@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="Makros Solutions">
 <meta property="og:title" content="Makros Solutions | Complexity, solved.">
 <meta property="og:description" content="Makros Solutions runs the technology, the back office and the brand work for growing businesses, so their teams can focus on what they do best.">
-<meta property="og:image" content="https://YOURNAME.github.io/makros/assets/img/share.png">
+<meta property="og:image" content="https://yohanphil.github.io/Makros/assets/img/share.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -32,6 +32,7 @@
 <symbol id="t1" viewBox="0 0 32 32"><rect x="1" y="1" width="8" height="8" rx="2" fill="currentColor"/><g fill="currentColor" opacity=".22"><rect x="12" y="1" width="8" height="8" rx="2"/><rect x="23" y="1" width="8" height="8" rx="2"/><rect x="1" y="12" width="8" height="8" rx="2"/><rect x="12" y="12" width="8" height="8" rx="2"/><rect x="23" y="12" width="8" height="8" rx="2"/><rect x="1" y="23" width="8" height="8" rx="2"/><rect x="12" y="23" width="8" height="8" rx="2"/><rect x="23" y="23" width="8" height="8" rx="2"/></g></symbol>
 <symbol id="t2" viewBox="0 0 32 32"><rect x="12" y="1" width="8" height="8" rx="2" fill="currentColor"/><g fill="currentColor" opacity=".22"><rect x="1" y="1" width="8" height="8" rx="2"/><rect x="23" y="1" width="8" height="8" rx="2"/><rect x="1" y="12" width="8" height="8" rx="2"/><rect x="12" y="12" width="8" height="8" rx="2"/><rect x="23" y="12" width="8" height="8" rx="2"/><rect x="1" y="23" width="8" height="8" rx="2"/><rect x="12" y="23" width="8" height="8" rx="2"/><rect x="23" y="23" width="8" height="8" rx="2"/></g></symbol>
 <symbol id="t3" viewBox="0 0 32 32"><rect x="23" y="1" width="8" height="8" rx="2" fill="currentColor"/><g fill="currentColor" opacity=".22"><rect x="1" y="1" width="8" height="8" rx="2"/><rect x="12" y="1" width="8" height="8" rx="2"/><rect x="1" y="12" width="8" height="8" rx="2"/><rect x="12" y="12" width="8" height="8" rx="2"/><rect x="23" y="12" width="8" height="8" rx="2"/><rect x="1" y="23" width="8" height="8" rx="2"/><rect x="12" y="23" width="8" height="8" rx="2"/><rect x="23" y="23" width="8" height="8" rx="2"/></g></symbol>
+<symbol id="spinI" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="tick" viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></symbol>
 <symbol id="personI" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></symbol>
@@ -62,26 +63,15 @@
 <main>
 <section class="wrap hero" id="hero" aria-labelledby="h-home">
 <div class="heroL">
-<div>
 <h1 class="xl split" id="h-home">Complexity, solved.</h1>
 <p class="mid lede ink2 r">Makros Solutions runs the technology, the back office and the brand work for growing businesses, so their teams can focus on what they do best.</p>
-<div class="heroCta r"><a class="btn mag" href="contact.html">Start a conversation <svg aria-hidden="true"><use href="#arrow"/></svg></a><span class="cue" id="cue"><i></i>Scroll to solve it</span></div>
+<div class="heroCta r"><a class="btn mag" href="contact.html">Start a conversation <svg aria-hidden="true"><use href="#arrow"/></svg></a><button class="btn quiet" type="button" id="replay" hidden><svg aria-hidden="true"><use href="#spinI"/></svg>Scramble it again</button></div>
 </div>
-<div class="solveBox r" aria-live="off">
-<div><div class="timer" id="timer">0.00<small>s</small></div><p class="timerLbl">Solve time</p></div>
-<ol class="tangles" id="tangles">
-<li style="--c:#1E9BE6"><i></i>Systems that don't talk to each other</li>
-<li style="--c:#17A985"><i></i>Processes that eat your week</li>
-<li style="--c:#7563EE"><i></i>A brand that undersells you</li>
-<li style="--c:#0B1030"><i></i>Solved, and back to your real work</li>
-</ol>
-<p class="moves" id="moves"><b>Solve</b></p>
-</div>
-</div>
-<div class="heroR">
-<div class="cubeHost" id="heroCube" role="img" aria-label="The Makros cube, scrambled, solving itself as you scroll">
+<div class="heroR" id="heroR">
+<div class="cubeHost" id="heroCube" role="img" aria-label="The Makros cube arriving scrambled and solving itself">
 <svg class="fallback" id="heroFallback" viewBox="0 7.2 120 117.6" aria-hidden="true"><use href="#mkS" x="14" y="14" width="92" height="104"/></svg>
 </div>
+<div class="sparks" id="sparks" aria-hidden="true"></div>
 </div>
 </section>
 
@@ -109,21 +99,19 @@
 <ul class="svcList"><li>Software development</li><li>Mobile development</li><li>Website development</li><li>ERP implementations</li><li>Cyber security</li><li>IT compliance and governance</li><li>Digital transformation</li><li>IT infrastructure</li></ul>
 <a class="link" href="technology.html">Explore Technology <svg aria-hidden="true"><use href="#arrow"/></svg></a>
 </div>
-<figure style="margin:0">
-<div data-ui>
-<div class="uiHead"><b>Security overview</b><span class="chip">Example client · October</span></div>
-<table>
-<tr><td>Firewall and web filtering</td><td class="ok">Healthy</td></tr>
-<tr><td>Endpoint protection</td><td>48 of 48 devices</td></tr>
-<tr><td>Phishing test, staff who clicked</td><td>6% <span style="color:var(--mute)">(was 19%)</span></td></tr>
-<tr><td>ISO 27001 Annex A controls in place</td><td>81 of 93</td></tr>
-<tr><td>Open findings</td><td class="warn">3 high, 7 medium</td></tr>
-</table>
-<p style="margin-top:16px;font-weight:600">Alerts handled by the Security Operations Centre</p>
-<div class="bars ubars"><i style="--h:62%"></i><i style="--h:80%"></i><i style="--h:54%"></i><i style="--h:91%"></i><i style="--h:70%"></i><i style="--h:30%"></i><i style="--h:24%"></i></div>
-<div class="barLbl"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
-</div>
-<figcaption class="uiCap ink2">Example of a monthly security report a Makros client receives.</figcaption>
+<figure class="scene" aria-hidden="true">
+<svg viewBox="0 0 560 440">
+<defs><path id="tk0" d="M96 120 Q 188 145 280 222"/><path id="tk1" d="M180 52 Q 230 111 280 222"/><path id="tk2" d="M380 52 Q 330 111 280 222"/><path id="tk3" d="M464 120 Q 372 145 280 222"/><path id="tk4" d="M456 352 Q 368 313 280 222"/><path id="tk5" d="M104 352 Q 192 313 280 222"/></defs>
+<ellipse cx="280" cy="226" rx="250" ry="168" fill="none" stroke="#E9EBF5" stroke-width="2"/>
+<g fill="none" stroke="#DDE0EE" stroke-width="2"><use href="#tk0"/><use href="#tk1"/><use href="#tk2"/><use href="#tk3"/><use href="#tk4"/><use href="#tk5"/></g>
+<g fill="none" stroke="#4A4FE6" stroke-width="2" class="flowLine"><use href="#tk0"/><use href="#tk1"/><use href="#tk2"/><use href="#tk3"/><use href="#tk4"/><use href="#tk5"/></g>
+<circle r="5.5" fill="#1E9BE6"><animateMotion dur="2.4s" begin="0.0s" repeatCount="indefinite"><mpath href="#tk0"/></animateMotion></circle><circle r="5.5" fill="#7563EE"><animateMotion dur="2.4s" begin="0.4s" repeatCount="indefinite"><mpath href="#tk1"/></animateMotion></circle><circle r="5.5" fill="#17A985"><animateMotion dur="2.4s" begin="0.8s" repeatCount="indefinite"><mpath href="#tk2"/></animateMotion></circle><circle r="5.5" fill="#1E9BE6"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite"><mpath href="#tk3"/></animateMotion></circle><circle r="5.5" fill="#7563EE"><animateMotion dur="2.4s" begin="1.6s" repeatCount="indefinite"><mpath href="#tk4"/></animateMotion></circle><circle r="5.5" fill="#17A985"><animateMotion dur="2.4s" begin="2.0s" repeatCount="indefinite"><mpath href="#tk5"/></animateMotion></circle>
+<ellipse class="ripple" cx="280" cy="226" rx="96" ry="58" fill="none" stroke="#7563EE" stroke-width="2"/>
+<ellipse class="ripple" style="--d:-1.4s" cx="280" cy="226" rx="96" ry="58" fill="none" stroke="#1E9BE6" stroke-width="2"/>
+<ellipse class="perim" cx="280" cy="226" rx="132" ry="80" fill="none" stroke="#4A4FE6" stroke-width="2.5" stroke-linecap="round"/>
+<use class="hub" href="#mkS" x="234" y="170" width="92" height="104"/>
+<g class="bob" style="--d:-.2s"><use href="#mkS" x="74" y="95" width="44" height="50"/><text x="96" y="166" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#0B1030">Software</text></g><g class="bob" style="--d:-1.1s"><use href="#mkS" x="158" y="27" width="44" height="50"/><text x="180" y="98" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#0B1030">Website</text></g><g class="bob" style="--d:-.6s"><use href="#mkS" x="358" y="27" width="44" height="50"/><text x="380" y="98" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#0B1030">Mobile app</text></g><g class="bob" style="--d:-1.6s"><use href="#mkS" x="442" y="95" width="44" height="50"/><text x="464" y="166" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#0B1030">ERP</text></g><g class="bob" style="--d:-2.1s"><use href="#mkS" x="434" y="327" width="44" height="50"/><text x="456" y="398" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#0B1030">Cloud</text></g><g class="bob" style="--d:-.9s"><use href="#mkS" x="82" y="327" width="44" height="50"/><text x="104" y="398" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#0B1030">Firewall</text></g>
+</svg>
 </figure>
 </article>
 
@@ -135,25 +123,32 @@
 <ul class="svcList"><li>Augmented teams on our payroll</li><li>Managed finance, end to end</li><li>Bookkeeping and reconciliations</li><li>Monthly financial statements</li><li>Age analysis and cash flow</li><li>Financial controls and strategy</li></ul>
 <a class="link" href="operations.html">Explore Operations <svg aria-hidden="true"><use href="#arrow"/></svg></a>
 </div>
-<figure style="margin:0">
-<div data-ui>
-<div class="uiHead"><b>Profit and loss, September 2026</b><span class="chip">Example client · LKR</span></div>
-<table>
-<tr><td>Revenue</td><td>12,480,000</td></tr>
-<tr><td>Cost of sales</td><td>(7,240,000)</td></tr>
-<tr class="tot"><td>Gross profit</td><td>5,240,000</td></tr>
-<tr><td>Operating expenses</td><td>(3,115,000)</td></tr>
-<tr class="tot"><td>Net profit before tax</td><td>2,125,000</td></tr>
-</table>
-<p style="margin-top:16px;font-weight:600">Receivables by age</p>
-<div class="age">
-<div><span>0 to 30 days</span><em style="--w:100%"></em><span>3,420,000</span></div>
-<div><span>31 to 60 days</span><em style="--w:35%"></em><span>1,180,000</span></div>
-<div><span>61 to 90 days</span><em style="--w:13%;--c:#9A5B00"></em><span>460,000</span></div>
-<div><span>Over 90 days</span><em style="--w:6%;--c:#B3261E"></em><span>215,000</span></div>
-</div>
-</div>
-<figcaption class="uiCap ink2">Example of the monthly pack a managed finance client receives.</figcaption>
+<figure class="scene" aria-hidden="true">
+<svg viewBox="0 0 560 440">
+<path d="M136 222 H212" stroke="#2A3170" stroke-width="2" fill="none"/>
+<path class="flowLine" d="M136 222 H212" stroke="#3FDDB5" stroke-width="2" fill="none"/>
+<path id="opOut" d="M348 222 C 362 222 368 214 386 214" fill="none" stroke="#2A3170" stroke-width="2"/>
+<circle r="5" fill="#3FDDB5"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#opOut"/></animateMotion></circle>
+<circle r="5" fill="#9A8CFA"><animateMotion dur="1.5s" begin=".75s" repeatCount="indefinite"><mpath href="#opOut"/></animateMotion></circle>
+<circle class="ripple" cx="280" cy="222" r="78" fill="none" stroke="#3FDDB5" stroke-width="2"/>
+<circle class="ripple" style="--d:-1.4s" cx="280" cy="222" r="78" fill="none" stroke="#9A8CFA" stroke-width="2"/>
+<rect x="212" y="154" width="136" height="136" rx="30" fill="#1A2154"/>
+<use class="spinSlow" href="#mkW" x="246" y="183" width="68" height="77"/>
+<g class="doc" style="--d:0s"><rect x="30" y="160" width="104" height="124" rx="12" fill="#fff"/><rect x="44" y="178" width="46" height="8" rx="4" fill="#0B1030"/><rect x="44" y="198" width="74" height="6" rx="3" fill="#DDE0EE"/><rect x="44" y="212" width="60" height="6" rx="3" fill="#DDE0EE"/><rect x="44" y="226" width="68" height="6" rx="3" fill="#DDE0EE"/><text x="44" y="266" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#5B6180">Invoice</text></g><g class="doc" style="--d:-1.5s"><rect x="30" y="160" width="104" height="124" rx="12" fill="#fff"/><rect x="44" y="178" width="46" height="8" rx="4" fill="#0B1030"/><rect x="44" y="198" width="74" height="6" rx="3" fill="#DDE0EE"/><rect x="44" y="212" width="60" height="6" rx="3" fill="#DDE0EE"/><rect x="44" y="226" width="68" height="6" rx="3" fill="#DDE0EE"/><text x="44" y="266" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#5B6180">Receipt</text></g><g class="doc" style="--d:-3s"><rect x="30" y="160" width="104" height="124" rx="12" fill="#fff"/><rect x="44" y="178" width="46" height="8" rx="4" fill="#0B1030"/><rect x="44" y="198" width="74" height="6" rx="3" fill="#DDE0EE"/><rect x="44" y="212" width="60" height="6" rx="3" fill="#DDE0EE"/><rect x="44" y="226" width="68" height="6" rx="3" fill="#DDE0EE"/><text x="44" y="266" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#5B6180">Bank statement</text></g>
+<g class="bobS">
+<rect x="386" y="92" width="152" height="256" rx="16" fill="#fff"/>
+<text class="cyc" style="--d:0.0s" x="402" y="128" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#0B1030">Profit and loss</text><text class="cyc" style="--d:4.5s" x="402" y="128" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#0B1030">Balance sheet</text><text class="cyc" style="--d:9.0s" x="402" y="128" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#0B1030">Cash flow</text><text class="cyc" style="--d:13.5s" x="402" y="128" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#0B1030">Age analysis</text>
+<rect x="402" y="140" width="64" height="5" rx="2.5" fill="#DDE0EE"/>
+<circle class="pop" cx="514" cy="120" r="12" fill="#17A985"/>
+<path class="pop" d="M508 120 l4 4 l8 -8" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="drawLoop" pathLength="100" d="M404 214 L432 194 L462 204 L492 172 L520 160" fill="none" stroke="#17A985" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect class="grow" style="--d:0s" x="404" y="272" width="20" height="46" rx="4" fill="#4A4FE6"/>
+<rect class="grow" style="--d:.12s" x="434" y="248" width="20" height="70" rx="4" fill="#7563EE"/>
+<rect class="grow" style="--d:.24s" x="464" y="260" width="20" height="58" rx="4" fill="#4A4FE6"/>
+<rect class="grow" style="--d:.36s" x="494" y="226" width="20" height="92" rx="4" fill="#7563EE"/>
+<rect x="402" y="320" width="118" height="2" fill="#DDE0EE"/>
+</g>
+</svg>
 </figure>
 </article>
 
@@ -165,14 +160,35 @@
 <ul class="svcList"><li>Brand identity and guidelines</li><li>Decks and company profiles</li><li>Corporate video</li><li>Photography</li><li>3D visualisation</li><li>Motion graphics</li><li>Digital marketing</li><li>Social media content</li></ul>
 <a class="link" href="studio.html">Explore Studio <svg aria-hidden="true"><use href="#arrow"/></svg></a>
 </div>
-<figure style="margin:0">
-<div data-ui>
-<div class="uiHead"><b>Company film, end card</b><span class="chip">Example · 0:30</span></div>
-<div class="film"><svg aria-hidden="true"><use href="#mkW"/></svg><b>Complexity,<br>solved.</b></div>
-<div class="scrub"><span>0:24</span><em></em><span>0:30</span></div>
-<div class="frames"><i style="--c:#1E9BE6"></i><i style="--c:#0B1030"></i><i style="--c:#17A985"></i><i style="--c:#7563EE"></i></div>
-</div>
-<figcaption class="uiCap ink2">Example end card from a company film made by the Studio.</figcaption>
+<figure class="scene" aria-hidden="true">
+<svg viewBox="0 0 560 440">
+<g class="bobS">
+<rect x="150" y="30" width="370" height="222" rx="18" fill="#0B1030"/>
+<rect class="cut" x="162" y="42" width="346" height="172" rx="10"/>
+<use href="#mkW" x="198" y="96" width="54" height="61"/>
+<text x="268" y="122" font-family="Sora, sans-serif" font-size="25" font-weight="600" fill="#fff">Complexity,</text>
+<text x="268" y="152" font-family="Sora, sans-serif" font-size="25" font-weight="600" fill="#fff">solved.</text>
+<rect x="162" y="230" width="346" height="5" rx="2.5" fill="#262C66"/>
+<rect class="prog" x="162" y="230" width="346" height="5" rx="2.5" fill="#3FDDB5"/>
+</g>
+<g class="bob" style="--d:-1s">
+<rect x="56" y="170" width="140" height="246" rx="24" fill="#fff"/>
+<rect x="68" y="182" width="116" height="222" rx="16" fill="#F3F4FA"/>
+<circle cx="86" cy="202" r="9" fill="#7563EE"/><rect x="102" y="198" width="52" height="7" rx="3.5" fill="#0B1030"/>
+<rect x="76" y="220" width="100" height="100" rx="10" fill="#1E9BE6"/>
+<use href="#mkS" x="105" y="244" width="42" height="48"/>
+<rect x="76" y="332" width="80" height="7" rx="3.5" fill="#DDE0EE"/><rect x="76" y="346" width="58" height="7" rx="3.5" fill="#DDE0EE"/>
+<path class="heart" style="--d:0s" transform="translate(146 350)" d="M0 6c0-3.3 2.7-6 6-6 2.4 0 4.4 1.4 5.4 3.4C12.4 1.4 14.4 0 16.8 0c3.3 0 6 2.7 6 6 0 7-11.4 13-11.4 13S0 13 0 6z" fill="#7563EE"/><path class="heart" style="--d:-1s" transform="translate(160 350)" d="M0 6c0-3.3 2.7-6 6-6 2.4 0 4.4 1.4 5.4 3.4C12.4 1.4 14.4 0 16.8 0c3.3 0 6 2.7 6 6 0 7-11.4 13-11.4 13S0 13 0 6z" fill="#17A985"/><path class="heart" style="--d:-2s" transform="translate(140 350)" d="M0 6c0-3.3 2.7-6 6-6 2.4 0 4.4 1.4 5.4 3.4C12.4 1.4 14.4 0 16.8 0c3.3 0 6 2.7 6 6 0 7-11.4 13-11.4 13S0 13 0 6z" fill="#1E9BE6"/>
+</g>
+<path id="penP" class="pen" pathLength="100" d="M262 404 C 330 350, 420 430, 528 330" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<circle r="8" fill="#fff" stroke="#0B1030" stroke-width="3"><animateMotion dur="4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.6;1" calcMode="linear"><mpath href="#penP"/></animateMotion></circle>
+<g stroke="#fff" stroke-width="4">
+<circle class="bob" style="--d:0s" cx="300" cy="316" r="20" fill="#1E9BE6"/>
+<circle class="bob" style="--d:-.4s" cx="346" cy="316" r="20" fill="#7563EE"/>
+<circle class="bob" style="--d:-.8s" cx="392" cy="316" r="20" fill="#17A985"/>
+<circle class="bob" style="--d:-1.2s" cx="438" cy="316" r="20" fill="#0B1030"/>
+</g>
+</svg>
 </figure>
 </article>
 </div>
