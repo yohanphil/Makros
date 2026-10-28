@@ -61,7 +61,7 @@ In Settings, Pages, Custom domain, enter something like `preview.makrossolutions
 * The footer says "Website design preview". Remove it at the same time.
 * The contact form opens the visitor's email app with the message written out and addressed to hello@makrossolutions.com. To receive messages without the email app, connect a form service such as Formspree.
 * The figures in the home page reports are examples and are labelled that way.
-* About uses vision and mission Option 1 until the directors choose.
+* About shows the aligned vision and mission, built from the company’s own statements.
 
 ## What's inside
 
