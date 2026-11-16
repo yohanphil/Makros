@@ -114,7 +114,7 @@ var Cube=(function(){
       if(z===-1)tile(g,'nz',new THREE.Vector3(0,0,-1),0,Math.PI);
       g.position.set(x,y,z);root.add(g);cubies.push(g);
     }
-    function fit(){var w=host.clientWidth,hh=host.clientHeight;if(!w||!hh)return;r.setSize(w,hh,false);cv.style.width='100%';cv.style.height='100%';var a=w/hh;cam.aspect=a;var R=w<700?3.3:2.75,t=Math.tan(cam.fov*Math.PI/360);DIST=a>=1?R/t:R/(t*a);placeCam();cam.updateProjectionMatrix()}
+    function fit(){var w=host.clientWidth,hh=host.clientHeight;if(!w||!hh)return;r.setSize(w,hh,false);cv.style.width='100%';cv.style.height='100%';var a=w/hh;cam.aspect=a;var R=opts.R||(w<700?3.3:2.75),t=Math.tan(cam.fov*Math.PI/360);DIST=a>=1?R/t:R/(t*a);placeCam();cam.updateProjectionMatrix()}
     fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(host);else window.addEventListener('resize',fit);
     var tgx=0,tgy=0,rx=0,ry=0,ux=0,uy=0,vis=true,pop=-1,ex={spin:0,lift:0,scale:1,idle:0,scroll:0},ia=0;
     if(opts.tilt&&FINE&&!RM){var area=opts.tilt;area.addEventListener('pointermove',function(e){var b=area.getBoundingClientRect();tgy=((e.clientX-b.left)/b.width-.5)*.3;tgx=((e.clientY-b.top)/b.height-.5)*.16});area.addEventListener('pointerleave',function(){tgx=0;tgy=0})}
@@ -227,6 +227,9 @@ if(Cube&&$('#heroCube')){hero=Cube.view($('#heroCube'),{tilt:$('#hero'),play:{
 }})}
 if(hero){heroFb.style.transition='none';heroFb.style.opacity='0'}
 else if(heroFb){heroSvg=SvgCube(heroFb);if(cubeHint)cubeHint.hidden=true;if(solveCubeBtn)solveCubeBtn.hidden=true}
+/* the loader hands over: it shrinks away as the 3D cube flies in (or the flat cube, where there is no 3D) */
+(function(){var hc=$('#heroCube'),cl=$('#cubeLoad');if(hc){hc.classList.remove('flat');hc.classList.add(hero?'live':'flat')}
+  if(cl){if(!hero)cl.style.display='none';else{cl.classList.add('out');setTimeout(function(){cl.remove()},700)}}})();
 if($('#hero')&&window.IntersectionObserver)new IntersectionObserver(function(es){heroVis=es[0].isIntersecting}).observe($('#hero'));
 function burst(){
   if(!sparks||!G)return;
@@ -294,18 +297,89 @@ if(hero||heroSvg){
   if(solveCubeBtn)solveCubeBtn.addEventListener('click',heroSolve);
 }
 
-/* ---------- footer tile wall: scrambled until it scrolls into view, then it sorts into Sky, Lilac and Mint ---------- */
+/* ---------- process cards: the hero's 3D cube, a little more solved at each stage ----------
+   Listen looks the scrambled cube over, Shape and Deliver solve part of it, Stay finishes it.
+   Each cube is built just before its card comes near, and plays its step once as the card arrives;
+   hovering a card plays it again. */
+(function(){
+  var hosts=$$('.cardCube');if(!hosts.length)return;
+  if(!Cube){hosts.forEach(function(h){h.classList.add('flat')});return}
+  /* the last turns to solve are bottom and middle rows only, so Shape shows the top layer solved and Deliver is one turn away */
+  var S=[{a:'y',l:-1,d:1},{a:'y',l:0,d:-1},{a:'y',l:-1,d:1}].concat(Cube.rand(11)),LEFT=[14,3,1,0];
+  function stateAt(n){var s=Cube.solved();S.slice(0,n).forEach(function(m){s=Cube.snap(Cube.apply(s,m,1))});return s}
+  function pop(host){
+    if(!G)return;var box=document.createElement('div');box.className='sparks';host.appendChild(box);
+    var cols=['#45D4FF','#DDABFF','#40FFC6','#2BB8FF','#D18CFF','#36EDB8'];
+    for(var i=0;i<16;i++){(function(i){var s=document.createElement('i');s.style.background=cols[i%cols.length];box.appendChild(s);
+      var a=Math.random()*Math.PI*2,d=110+Math.random()*120;
+      gsap.fromTo(s,{x:0,y:0,scale:.35+Math.random()*.4,rotation:0},{x:Math.cos(a)*d,y:Math.sin(a)*d*.85,rotation:(Math.random()-.5)*540,scale:0,duration:1+Math.random()*.5,ease:'power3.out',onComplete:function(){s.remove()}})})(i)}
+    setTimeout(function(){box.remove()},1800);
+  }
+  hosts.forEach(function(host){
+    var k=+host.getAttribute('data-stage')||0,v=null,busy=false,played=false,card=host.closest('.card');
+    var startN=k===0?LEFT[0]:LEFT[k-1],endN=LEFT[k];
+    function build(){if(v)return true;v=Cube.view(host,{R:2.45});if(!v){host.classList.add('flat');return false}
+      host.classList.add('live');v.show(stateAt(startN));v.set({idle:0});return true}
+    function play(){
+      if(!build()||busy)return;busy=true;v.set({idle:0});
+      var run;
+      if(k===0){v.show(stateAt(LEFT[0]));v.set({spin:0,lift:0});
+        run=animProps(v,{lift:.25,scale:.94},300,easeIO)
+          .then(function(){return animProps(v,{spin:Math.PI*2},1800,easeIO)})
+          .then(function(){v.set({spin:0});return animProps(v,{lift:0,scale:1},420,easeIO)})}
+      else{var st=stateAt(startN);v.show(st);v.set({spin:0});
+        var mv=Cube.inverse(S.slice(endN,startN));
+        run=playMoves(v,st,mv,Math.min(620,2600/mv.length),mv.length>2?[0,Math.PI*2]:null).then(function(){v.set({spin:0});if(k===3){v.pop();pop(host)}})}
+      run.then(function(){busy=false;played=true;v.set({idle:1})});
+    }
+    if(window.IntersectionObserver){
+      new IntersectionObserver(function(es){if(es[0].isIntersecting)build()},{rootMargin:'600px 0px'}).observe(host);
+      var io=new IntersectionObserver(function(es){if(es[0].isIntersecting&&!played){io.disconnect();play()}},{threshold:.6});io.observe(host);
+    }else{build();play()}
+    if(card&&FINE)card.addEventListener('pointerenter',function(){if(played)play()});
+  });
+})();
+
+/* ---------- footer tile wall: scrambled until it scrolls into view, then it sorts itself to spell the name ----------
+   Letter tiles take the bright brand colour of their part of the wall, every other tile a deep shade of the same colour.
+   Wide walls spell MAKROS and MKS in turn, narrow walls spell MKS. Every few seconds part of the wall scrambles into
+   random colours and sorts itself again, and tiles still flash under the pointer. */
 (function(){
   var tw=$('#tileWall');if(!tw)return;
-  var SOL=['#45D4FF','#DDABFF','#40FFC6'],MIX=['#45D4FF','#DDABFF','#40FFC6','#4A4FE6','#2BB8FF','#D18CFF','#1A2154','#36EDB8'],tiles=[],cols=0,rows=0,seen=false,loopT=0;
+  var BRIGHT=['#45D4FF','#DDABFF','#40FFC6'],DEEP=['#1C4B6E','#4A3E6E','#1B585D'],
+      MIX=['#45D4FF','#DDABFF','#40FFC6','#4A4FE6','#2BB8FF','#D18CFF','#1A2154','#36EDB8'];
+  var FONT={M:['10001','11011','10101','10001','10001'],A:['0110','1001','1111','1001','1001'],K:['1001','1010','1100','1010','1001'],
+            R:['1110','1001','1110','1010','1001'],O:['0110','1001','1001','1001','0110'],S:['0111','1000','0110','0001','1110']};
+  var PART={MAKROS:[0,0,1,1,2,2],MKS:[0,1,2]};
+  var tiles=[],cols=0,rows=7,seen=false,loopT=0,words=['MKS'],wi=0;
   function rnd(){return MIX[Math.floor(Math.random()*MIX.length)]}
-  function build(){var w=tw.clientWidth||window.innerWidth;var c=Math.max(12,Math.min(40,Math.round(w/44))),r=w<640?5:4;if(c===cols&&r===rows)return;cols=c;rows=r;tw.style.setProperty('--cols',cols);tw.textContent='';tiles=[];
-    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){var i=document.createElement('i');var t={el:i,x:x,y:y,goal:SOL[Math.min(2,Math.floor(x/cols*3))]};i.style.setProperty('--c',seen?t.goal:rnd());tw.appendChild(i);tiles.push(t)}}
-  function solve(){tiles.forEach(function(t){t.el.style.setProperty('--dl',((t.x+t.y*2)*22)+'ms');t.el.style.setProperty('--c',t.goal)})}
+  function wide(w){return w.split('').reduce(function(a,ch){return a+FONT[ch][0].length},0)+w.length-1}
+  /* which colour each tile settles on for this word */
+  function spell(word){
+    var x=Math.floor((cols-wide(word))/2),y0=Math.floor((rows-5)/2),on={},cut=[];
+    /* on a wide wall MKS spreads out, one letter centred in each third; MAKROS, and MKS on a narrow wall, run as one word */
+    var spread=word.length===3&&cols>=32,b=[0,Math.round(cols/3),Math.round(cols*2/3),cols];
+    if(spread)cut=[b[1]-1,b[2]-1];
+    word.split('').forEach(function(ch,li){var f=FONT[ch],g=PART[word][li];
+      if(spread)x=b[li]+Math.floor((b[li+1]-b[li]-f[0].length)/2);
+      f.forEach(function(row,ry){for(var cx=0;cx<row.length;cx++)if(row[cx]==='1')on[(x+cx)+','+(y0+ry)]=g});
+      x+=f[0].length;if(!spread&&li<word.length-1&&PART[word][li+1]!==g)cut.push(x);x+=1});
+    tiles.forEach(function(t){var g=t.x<=cut[0]?0:(t.x<=cut[1]?1:2),k=on[t.x+','+t.y];t.goal=k===undefined?DEEP[g]:BRIGHT[k]});
+    tw.setAttribute('aria-label','A wall of Makros tiles that scrambles, then sorts itself to spell '+word);
+  }
+  function build(){
+    var w=tw.clientWidth||window.innerWidth,c=w>=1000?Math.max(32,Math.min(46,Math.round(w/42))):Math.max(17,Math.round(w/40));
+    if(c===cols&&tiles.length)return;cols=c;tw.style.setProperty('--cols',cols);tw.textContent='';tiles=[];
+    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){var i=document.createElement('i');tw.appendChild(i);tiles.push({el:i,x:x,y:y,goal:DEEP[0]})}
+    words=cols>=32?['MAKROS','MKS']:['MKS'];wi=0;spell(words[0]);
+    tiles.forEach(function(t){t.el.style.setProperty('--c',seen?t.goal:rnd())});
+  }
+  function solve(){tiles.forEach(function(t){t.el.style.setProperty('--dl',((t.x+t.y*2)*18)+'ms');t.el.style.setProperty('--c',t.goal)})}
   function scramble(p){tiles.forEach(function(t){if(Math.random()<p){t.el.style.setProperty('--dl',(Math.random()*300|0)+'ms');t.el.style.setProperty('--c',rnd())}})}
-  function cycle(){clearTimeout(loopT);loopT=setTimeout(function(){if(!seen)return;scramble(.35);setTimeout(solve,1300);cycle()},7000)}
+  function cycle(){clearTimeout(loopT);loopT=setTimeout(function(){if(!seen)return;scramble(.45);
+    setTimeout(function(){if(words.length>1){wi=(wi+1)%words.length;spell(words[wi])}solve()},1300);cycle()},7000)}
   build();
-  if(window.ResizeObserver)new ResizeObserver(function(){build();if(seen)solve()}).observe(tw);
+  if(window.ResizeObserver)new ResizeObserver(function(){var c=cols;build();if(seen&&c!==cols)solve()}).observe(tw);
   if(window.IntersectionObserver)new IntersectionObserver(function(es){var on=es[0].isIntersecting;if(on&&!seen){seen=true;setTimeout(solve,250);cycle()}else if(on){cycle()}else clearTimeout(loopT)},{threshold:.3}).observe(tw);
   else{seen=true;solve()}
   tw.addEventListener('pointerover',function(e){var el=e.target;if(el.tagName!=='I')return;var k=tiles.findIndex(function(t){return t.el===el});if(k<0)return;var t=tiles[k];
@@ -425,8 +499,11 @@ function initHome(page){
   var cards=$$('#stack .card');
   cards.forEach(function(c,i){if(i===cards.length-1)return;gsap.to(c,{scale:.93,ease:'none',scrollTrigger:{trigger:cards[i+1],start:'top bottom',end:'top 30%',scrub:true}})});
   cards.forEach(function(c){gsap.from($$('.tl',c),{scale:0,transformOrigin:'50% 50%',duration:.5,ease:'back.out(2)',stagger:.012,scrollTrigger:{trigger:c,start:'top 70%',once:true}})});
-  /* the name collapses as you scroll */
-  gsap.fromTo('#name .gone',{maxWidth:'.62em',opacity:1},{maxWidth:0,opacity:0,ease:'none',scrollTrigger:{trigger:'#name',start:'top 75%',end:'top 15%',scrub:true}});
+  /* the name collapses as you scroll: Makários loses two letters and becomes Makros (a CSS variable keeps the width in em) */
+  gsap.fromTo('#name .gone',{'--g':1},{'--g':0,ease:'none',scrollTrigger:{trigger:'#name .bigWord',start:'top 72%',end:'top 22%',scrub:true}});
+  /* the Greek word drifts behind; the three meanings turn into place like a row of the cube */
+  gsap.fromTo('#name .nameGhost span',{xPercent:6},{xPercent:-30,ease:'none',scrollTrigger:{trigger:'#name',start:'top bottom',end:'bottom top',scrub:true}});
+  gsap.from('#name .mTiles li',{rotationX:-100,opacity:0,transformOrigin:'50% 0%',duration:1,ease:'back.out(1.5)',stagger:.14,clearProps:'transform,opacity',scrollTrigger:{trigger:'#name .mTiles',start:'top 88%',once:true}});
 }
 function initPage(name){
   if(ctx){ctx.revert();ctx=null}
@@ -438,7 +515,7 @@ function initPage(name){
     reveals(page);
     if(name==='home')initHome(page);
     $$('.kin [data-drift]',page).forEach(function(rw){var d=+rw.getAttribute('data-drift');gsap.fromTo(rw,{xPercent:d<0?0:-18},{xPercent:d<0?-18:0,ease:'none',scrollTrigger:{trigger:rw,start:'top bottom',end:'bottom top',scrub:true}})});
-    $$('.loopGone',page).forEach(function(g){gsap.fromTo(g,{maxWidth:'.62em',opacity:1},{maxWidth:0,opacity:0,duration:.9,ease:'power3.inOut',repeat:-1,yoyo:true,repeatDelay:1.6,delay:1})});
+    $$('.loopGone',page).forEach(function(g){gsap.fromTo(g,{'--g':1},{'--g':0,duration:.9,ease:'power3.inOut',repeat:-1,yoyo:true,repeatDelay:1.6,delay:1})});
     var spans=$$('.giant span');gsap.from(spans,{yPercent:100,duration:1.1,ease:'power4.out',stagger:.06,scrollTrigger:{trigger:'#foot',start:'top 70%',once:true}});
   },document.body);
   requestAnimationFrame(function(){ScrollTrigger.refresh()});

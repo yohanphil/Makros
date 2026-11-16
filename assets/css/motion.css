@@ -105,3 +105,27 @@
 .techScene .shRing{transform-box:fill-box;transform-origin:center;animation:ripple 2.4s ease-out infinite}
 .techScene .blink{animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* hero loader: tiles light up in a spiral, the face settles on one colour (solved), turns a quarter, and starts again */
+.clFace{animation:clTurn 3s cubic-bezier(.5,0,.3,1) infinite}
+@keyframes clTurn{0%,62%{transform:rotateX(56deg) rotateZ(45deg) scale(1)}72%{transform:rotateX(56deg) rotateZ(135deg) scale(1.07)}80%,100%{transform:rotateX(56deg) rotateZ(135deg) scale(1)}}
+.clShade{animation:clShade 3s cubic-bezier(.5,0,.3,1) infinite}
+@keyframes clShade{0%,62%{transform:scale(1);opacity:1}72%{transform:scale(1.1);opacity:.75}80%,100%{transform:scale(1);opacity:1}}
+.clFace .o0{animation:cl0 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl0{0%,4%{background:#232A5C;transform:translateZ(0)}8%{background:#3FDDB5;transform:translateZ(26px)}12.5%,60%{background:#3FDDB5;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o1{animation:cl1 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl1{0%,9.5%{background:#232A5C;transform:translateZ(0)}13.5%{background:#9A8CFA;transform:translateZ(26px)}18%,60%{background:#9A8CFA;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o2{animation:cl2 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl2{0%,15%{background:#232A5C;transform:translateZ(0)}19%{background:#3BBDFF;transform:translateZ(26px)}23.5%,60%{background:#3BBDFF;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o3{animation:cl3 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl3{0%,20.5%{background:#232A5C;transform:translateZ(0)}24.5%{background:#3FDDB5;transform:translateZ(26px)}29%,60%{background:#3FDDB5;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o4{animation:cl4 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl4{0%,26%{background:#232A5C;transform:translateZ(0)}30%{background:#9A8CFA;transform:translateZ(26px)}34.5%,60%{background:#9A8CFA;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o5{animation:cl5 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl5{0%,31.5%{background:#232A5C;transform:translateZ(0)}35.5%{background:#3BBDFF;transform:translateZ(26px)}40%,60%{background:#3BBDFF;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o6{animation:cl6 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl6{0%,37%{background:#232A5C;transform:translateZ(0)}41%{background:#3FDDB5;transform:translateZ(26px)}45.5%,60%{background:#3FDDB5;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o7{animation:cl7 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl7{0%,42.5%{background:#232A5C;transform:translateZ(0)}46.5%{background:#9A8CFA;transform:translateZ(26px)}51%,60%{background:#9A8CFA;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+.clFace .o8{animation:cl8 3s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes cl8{0%,48%{background:#232A5C;transform:translateZ(0)}52%{background:#3BBDFF;transform:translateZ(26px)}56.5%,60%{background:#3BBDFF;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}

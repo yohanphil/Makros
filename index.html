@@ -18,11 +18,14 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" as="script">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/site.css">
 <link rel="stylesheet" href="assets/css/motion.css">
+<noscript><style>.cubeLoad{display:none}.cubeHost svg.fallback{opacity:1}</style></noscript>
 <script>try{if(sessionStorage.getItem('mkw')){document.documentElement.classList.add('arriving');sessionStorage.removeItem('mkw')}}catch(e){}</script>
 </head>
 <body data-page="home">
@@ -70,8 +73,10 @@
 </div>
 <div class="heroR" id="heroR">
 <div class="cubeHost" id="heroCube" role="img" aria-label="The Makros cube. It scrambles and solves itself, and you can drag its rows to play">
+<div class="cubeLoad" id="cubeLoad" aria-hidden="true"><div class="clFace"><b style="--z:5"></b><b style="--z:10"></b><b style="--z:15"></b><b style="--z:20"></b><i class="o0"></i><i class="o1"></i><i class="o2"></i><i class="o7"></i><i class="o8"></i><i class="o3"></i><i class="o6"></i><i class="o5"></i><i class="o4"></i></div><span class="clShade"></span></div>
 <svg class="fallback" id="heroFallback" viewBox="0 7.2 120 117.6" aria-hidden="true"><use href="#mkS" x="14" y="14" width="92" height="104"/></svg>
 </div>
+<script>setTimeout(function(){var h=document.getElementById('heroCube');if(h&&!h.classList.contains('live'))h.classList.add('flat')},10000)</script>
 <div class="sparks" id="sparks" aria-hidden="true"></div>
 <p class="cubeHint" id="cubeHint" aria-live="polite">Drag any row to turn it. Drag around the cube to look around.</p>
 </div>
@@ -269,21 +274,34 @@
 <div class="wrap">
 <div class="secHead"><h2 class="l split" id="h-process">How we work with you</h2><p class="mid ink2 r">The same four stages whether you need an app, a finance team or a brand film. The cube gets a little more solved at each one.</p></div>
 <ol class="stack" id="stack">
-<li class="card" style="--i:0"><div><h3>Listen</h3><p>We start with your goals and your constraints, not our catalogue. A first conversation with a director, then a look at how things work today.</p></div><svg class="cubeMini" data-cube="scr" viewBox="14 14 92 104" aria-hidden="true"></svg></li>
-<li class="card" style="--i:1"><div><h3>Shape</h3><p>A clear scope, timeline and price, agreed before any work begins. You know who does what, and when.</p></div><svg class="cubeMini" data-cube="top" viewBox="14 14 92 104" aria-hidden="true"></svg></li>
-<li class="card" style="--i:2"><div><h3>Deliver</h3><p>One accountable lead across every team you use, with progress you can see each week.</p></div><svg class="cubeMini" data-cube="two" viewBox="14 14 92 104" aria-hidden="true"></svg></li>
-<li class="card" style="--i:3"><div><h3>Stay</h3><p>Support, reviews and improvements long after launch. We measure ourselves over years, not projects.</p></div><svg class="cubeMini" data-cube="solved" viewBox="14 14 92 104" aria-hidden="true"></svg></li>
+<li class="card" style="--i:0"><div><h3>Listen</h3><p>We start with your goals and your constraints, not our catalogue. A first conversation with a director, then a look at how things work today.</p></div><div class="cardCube" data-stage="0"><svg class="cubeMini" data-cube="scr" viewBox="14 14 92 104" aria-hidden="true"></svg></div></li>
+<li class="card" style="--i:1"><div><h3>Shape</h3><p>A clear scope, timeline and price, agreed before any work begins. You know who does what, and when.</p></div><div class="cardCube" data-stage="1"><svg class="cubeMini" data-cube="top" viewBox="14 14 92 104" aria-hidden="true"></svg></div></li>
+<li class="card" style="--i:2"><div><h3>Deliver</h3><p>One accountable lead across every team you use, with progress you can see each week.</p></div><div class="cardCube" data-stage="2"><svg class="cubeMini" data-cube="two" viewBox="14 14 92 104" aria-hidden="true"></svg></div></li>
+<li class="card" style="--i:3"><div><h3>Stay</h3><p>Support, reviews and improvements long after launch. We measure ourselves over years, not projects.</p></div><div class="cardCube" data-stage="3"><svg class="cubeMini" data-cube="solved" viewBox="14 14 92 104" aria-hidden="true"></svg></div></li>
 </ol>
 </div>
 </section>
 
-<section class="sec nameSec" id="name" aria-labelledby="h-name">
-<div class="wrap">
+<section class="sec nameSec field-ink" id="name" aria-labelledby="h-name">
+<div class="nameGhost" aria-hidden="true" lang="el"><span>μακάριος</span></div>
+<div class="wrap nameIn">
+<p class="nameMeta r"><span class="nameGr" lang="el">μακάριος</span><span class="nameDot" aria-hidden="true"></span><span class="nameSay">Say it <b>MAH</b>·kros</span></p>
 <h2 class="bigWord" id="h-name" aria-label="Makários becomes Makros">Mak<span class="gone">á</span>r<span class="gone">i</span>os</h2>
-<div class="nameRow">
-<p class="mid r">From the Greek for happy, fortunate, blessed. It also echoes macro, the wide view of a whole business.</p>
-<p class="ink2 r" style="max-width:46ch">We see the whole business, solve each part of it, and leave our clients better off for having worked with us. That is how we want every client to feel.</p>
+<div class="nameGrid">
+<div class="nameFrom">
+<p class="mid">From the Greek for</p>
+<ul class="mTiles">
+<li style="--t:#3BBDFF">happy</li>
+<li style="--t:#9A8CFA">fortunate</li>
+<li style="--t:#3FDDB5">blessed</li>
+</ul>
 </div>
+<div class="macro r">
+<svg viewBox="14 14 92 104" aria-hidden="true"><use href="#mkW"/></svg>
+<p class="mid">It also echoes <b>macro</b>, the wide view of a whole business.</p>
+</div>
+</div>
+<p class="nameClose ink2 r">We see the whole business, solve each part of it, and leave our clients better off for having worked with us. That is how we want every client to feel.</p>
 </div>
 </section>
 
@@ -315,7 +333,7 @@
 <div class="col"><p>Explore</p><a href="technology.html">Technology</a><a href="operations.html">Operations</a><a href="studio.html">Studio</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 <div class="col"><p>Talk to us</p><a href="tel:+94773000904">+94 77 300 0904</a><a href="mailto:hello@makrossolutions.com">hello@makrossolutions.com</a><a href="https://www.linkedin.com/company/makros-solutions-pvt-limited/" target="_blank" rel="noopener">LinkedIn</a></div>
 </div>
-<div class="tileWall" id="tileWall" role="img" aria-label="A wall of Makros tiles that scrambles and sorts itself into the brand colours"></div>
+<div class="tileWall" id="tileWall" role="img" aria-label="A wall of Makros tiles that scrambles, then sorts itself to spell MAKROS"></div>
 <div class="fine"><span>© 2026 Makros Solutions (Pvt) Ltd</span><span>Website design preview</span></div>
 </div>
 </footer>
