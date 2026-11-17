@@ -336,44 +336,100 @@ if(hero||heroSvg){
         order.forEach(function(ci,k){var c=P.cubies[ci],b=base[ci],a=eback(seg(T,.7+k*.095,1.25+k*.095)),o=eio(seg(T,7.6+(26-k)*.045,8.1+(26-k)*.045));
           c.scale.setScalar(Math.max(.001,Math.min(1.08,a)*(1-o)));c.position.set(b.x,b.y+(1-cl(a))*1.4,b.z)});
         if(T>3.5&&T<3.7&&!popped){popped=true;v0.pop()}if(T<1)popped=false}}},
-  /* Deliver */
-  function(host){var P,v0,seq=Cube.sequence(Cube.rand(12)),fills=[],popped=false;
+  /* Deliver: the cube splits into its three teams on one glowing spindle, the lead that runs through all of them.
+     The layers spin on their own, then lock into place one a week like a combination dial; in week four the
+     spindle slides away and the finished cube is handed over with a turn. */
+  function(host){var P,v0,base,spindle,glow,cap,flashes=[],tags=[],fills=[],popped=false,V=new THREE.Vector3(),Q=new THREE.Quaternion(),UP=new THREE.Vector3(0,1,0);
+    var LAY=[{l:1,w:2.3,name:'Studio',lock:4.2,dock:4.9},{l:0,w:-1.7,name:'Operations',lock:1.4,dock:-1},{l:-1,w:1.3,name:'Technology',lock:2.8,dock:3.5}];
     var bar=document.createElement('div');bar.className='wkBar';bar.setAttribute('aria-hidden','true');
-    bar.innerHTML=[1,2,3,4].map(function(n){return '<span><i><b></b></i>Week '+n+'</span>'}).join('');host.appendChild(bar);
+    bar.innerHTML=[1,2,3,4].map(function(n){return '<span><i><b></b></i>Week '+n+'</span>'}).join('');
     fills=[].slice.call(bar.querySelectorAll('b'));
-    return {R:2.6,
-      init:function(v){v0=v;P=v.parts;v.show(seq.states[0])},
-      tick:function(t){var T=t%11.2,p=0,f=[0,0,0,0],spin=0;
-        if(T>=.6&&T<7){var u=T-.6,k=Math.min(3,Math.floor(u/1.6)),q=cl((u-k*1.6)/1.1);p=(k*3+q*3)/12;for(var j=0;j<4;j++)f[j]=j<k?1:(j===k?q:0)}
-        else if(T>=7&&T<9.6){p=1;f=[1,1,1,1]}
-        else if(T>=9.6){var r=eio(seg(T,9.6,10.8));p=1-r;spin=r*Math.PI*2;f=[1-r,1-r,1-r,1-r]}
-        v0.show(Cube.at(seq,p));P.root.rotation.y+=spin;
-        fills.forEach(function(b,j){b.style.transform='scaleX('+f[j]+')'});
-        if(T>=7&&T<7.3&&!popped){popped=true;v0.pop()}if(T<1)popped=false}}},
-  /* Stay */
-  function(){var P,v0,orbit,sats=[],shone=-1,W=new THREE.Color(0xffffff),wp=new THREE.Vector3(),D=new THREE.Vector3(1,-1,1).normalize();
-    return {R:3.15,uniqueTiles:true,
-      init:function(v){v0=v;P=v.parts;v.show(Cube.solved());
-        orbit=new THREE.Group();orbit.rotation.set(.38,0,-.16);P.scene.add(orbit);
-        var pts=[];for(var i=0;i<=160;i++){var a=i/160*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*2.4,0,Math.sin(a)*2.4))}
-        orbit.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.38})));
-        var cols=[0x45D4FF,0xDDABFF,0x40FFC6];
-        for(var i=0;i<12;i++){var m=new THREE.Mesh(P.geo.body,new THREE.MeshStandardMaterial({color:cols[i%3],roughness:.35,emissive:cols[i%3],emissiveIntensity:.2}));m.scale.setScalar(.25);orbit.add(m);sats.push(m)}},
-      tick:function(t){P.root.rotation.y+=t*.2;
-        sats.forEach(function(m,i){var a=-t*.55+i/12*Math.PI*2;m.position.set(Math.cos(a)*2.4,Math.sin(t*1.4+i)*.06,Math.sin(a)*2.4);m.rotation.set(t*.9+i,t*.7+i*2,0)});
-        var T=t%6.5,w=seg(T,.3,1.9),on=w>0&&w<1;
-        if(on||shone>0){P.root.updateMatrixWorld();var front=-2.6+w*5.2;
-          P.tiles.forEach(function(m){var I=0;if(on){m.getWorldPosition(wp);var d=wp.dot(D)-front;I=Math.exp(-d*d/.22)}
-            m.material.emissive.setHex(P.face[m.userData.k]).multiplyScalar(.07*(1-I)).add(W.clone().multiplyScalar(.7*I));m.material.emissiveIntensity=1});
-          shone=on?1:0}
-        if(T>1.1&&T<1.25&&!sats.popped){sats.popped=true;v0.pop()}if(T<.5)sats.popped=false}}}
+    /* the weekly bar sits under the card's own words, clear of the cube */
+    var words=host.closest('.card')&&host.closest('.card').firstElementChild;if(words)words.appendChild(bar);
+    LAY.forEach(function(L){var e=document.createElement('span');e.className='teamTag';e.textContent=L.name;host.appendChild(e);tags.push(e)});
+    function free(L,T){return L.w*(T<1.2?T*T/2.4:T-.6)}
+    function herm(p0,m0,p1,u){var u2=u*u,u3=u2*u;return (2*u3-3*u2+1)*p0+(u3-2*u2+u)*m0+(-2*u3+3*u2)*p1}
+    LAY.forEach(function(L){var a=free(L,L.lock),d=L.w*1.0*.5,twoPi=Math.PI*2;L.from=a;L.to=L.w>0?Math.ceil((a+d)/twoPi)*twoPi:Math.floor((a+d)/twoPi)*twoPi});
+    function angle(L,T){if(T<L.lock)return free(L,T);var u=cl((T-L.lock)/1.0);if(u>=1)return L.to;return herm(L.from,L.w*1.0,L.to,u)}
+    function gap(L,T){if(L.l===0)return 0;var open=eio(seg(T,0,1.2))*.9;if(T<L.dock)return L.l*open;return L.l*.9*(1-eback(seg(T,L.dock,L.dock+.5)))}
+    return {R:3.2,
+      init:function(v){v0=v;P=v.parts;v.show(Cube.solved());base=P.cubies.map(function(c){return c.position.clone()});
+        spindle=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,1,20),new THREE.MeshBasicMaterial({color:0xC9F6FF,transparent:true}));
+        glow=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,1,20),new THREE.MeshBasicMaterial({color:0x45D4FF,transparent:true,opacity:.35,depthWrite:false}));
+        cap=new THREE.Mesh(new THREE.SphereGeometry(.2,24,16),new THREE.MeshBasicMaterial({color:0xC9F6FF,transparent:true}));
+        P.root.add(spindle);P.root.add(glow);P.root.add(cap);
+        LAY.forEach(function(){var m=new THREE.Mesh(new THREE.RingGeometry(.93,1,96),new THREE.MeshBasicMaterial({color:0x40FFC6,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;P.root.add(m);flashes.push(m)})},
+      tick:function(t){var T=t%10.4,b=host.getBoundingClientRect();
+        var ang=LAY.map(function(L){return angle(L,T)}),gp=LAY.map(function(L){return gap(L,T)});
+        P.cubies.forEach(function(c,i){var k=base[i].y===1?0:(base[i].y===0?1:2);Q.setFromAxisAngle(UP,ang[k]);c.position.copy(base[i]).applyQuaternion(Q);c.position.y+=gp[k];c.quaternion.copy(Q)});
+        var open=Math.max(Math.abs(gp[0]),Math.abs(gp[2]))/.9,len=3.4+open*2.6,fade=(1-seg(T,5.6,6.2))*seg(T,0,.5);
+        spindle.scale.set(1,len*(.4+.6*fade),1);glow.scale.copy(spindle.scale);spindle.material.opacity=fade;glow.material.opacity=.35*fade*(.7+.3*Math.sin(t*6));
+        cap.position.y=spindle.scale.y/2;cap.material.opacity=fade;cap.scale.setScalar(.8+.2*Math.sin(t*6));
+        LAY.forEach(function(L,k){var at=L.dock>0?L.dock+.5:L.lock+1.0,u=seg(T,at,at+.6),m=flashes[k];m.position.y=L.l*.5;m.scale.setScalar(1.55+u*1.4);m.material.opacity=u>0&&u<1?(1-u)*.8:0});
+        P.root.rotation.y+=eio(seg(T,6.2,7.6))*Math.PI*2;
+        if(T>=6.2&&T<6.5&&!popped){popped=true;v0.pop()}if(T<1)popped=false;
+        /* weekly bars: one per lock, the fourth for the hand over */
+        var f=[seg(T,1.4,2.4),seg(T,2.8,4.0),seg(T,4.2,5.4),seg(T,5.6,6.4)],out=1-seg(T,9.6,10.2);
+        fills.forEach(function(el,k){el.style.transform='scaleX('+(f[k]*out)+')'});
+        /* team names ride beside their layer while the cube is apart */
+        P.root.updateMatrixWorld();
+        LAY.forEach(function(L,k){var y=L.l+gp[k],minx=1e9,sy=0;
+          for(var cx=-1;cx<=1;cx+=2)for(var cz=-1;cz<=1;cz+=2){V.set(cx*1.5,y,cz*1.5).applyAxisAngle(UP,ang[k]);P.root.localToWorld(V);V.project(P.cam);var x=(V.x+1)/2*b.width;if(x<minx)minx=x}
+          V.set(0,y,0);P.root.localToWorld(V);V.project(P.cam);sy=(1-V.y)/2*b.height;
+          var vis=k===1?cl(open*1.5):cl(Math.abs(gp[k])/.5);
+          tags[k].style.opacity=vis.toFixed(3);tags[k].style.transform='translate('+Math.round(minx-12)+'px,'+Math.round(sy)+'px) translate(-100%,-50%)'})}}},
+  /* Stay: a year in a few seconds. The sun and moon go round the solved cube, day turns to night behind it, the stickers
+     glow after dark, a layer slips at night and is snapped straight back, and the year count goes up every sunrise. */
+  function(host){var P,v0,base,lights,sun,moon,mats,ring,yr,lastY=-1,popped=false;
+    var sky=document.createElement('div');sky.className='sky';sky.setAttribute('aria-hidden','true');sky.innerHTML='<i></i>';
+    var tag=document.createElement('div');tag.className='yrTag';tag.setAttribute('aria-hidden','true');tag.innerHTML='Year <b>1</b>';yr=tag.querySelector('b');
+    var RT=new THREE.Vector3(),UPV=new THREE.Vector3(),FW=new THREE.Vector3(),Q=new THREE.Quaternion(),AX={x:new THREE.Vector3(1,0,0),y:new THREE.Vector3(0,1,0),z:new THREE.Vector3(0,0,1)};
+    var WARM=new THREE.Color(0xFFB36B),NOON=new THREE.Color(0xFFFFFF),MOONL=new THREE.Color(0xA9BCFF),HDAY=new THREE.Color(0xFFFFFF),HNIGHT=new THREE.Color(0x8796F0),tmp=new THREE.Color();
+    var SLIPS=[{a:'y',l:1},{a:'x',l:1},{a:'z',l:-1},{a:'y',l:-1},{a:'x',l:-1},{a:'z',l:1}];
+    function mix(a,b,u){return [a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u,a[3]+(b[3]-a[3])*u]}
+    return {R:3.25,
+      init:function(v){v0=v;P=v.parts;v.show(Cube.solved());base=P.cubies.map(function(c){return c.position.clone()});
+        host.classList.add('stay');host.insertBefore(sky,host.firstChild);host.appendChild(tag);
+        lights=P.scene.children.filter(function(o){return o.isLight});
+        mats=[];P.tiles.forEach(function(m){if(mats.indexOf(m.material)<0)mats.push(m.material)});
+        sun=new THREE.Mesh(new THREE.SphereGeometry(.24,32,16),new THREE.MeshBasicMaterial({color:0xFFCF5C}));
+        moon=new THREE.Mesh(new THREE.SphereGeometry(.18,32,16),new THREE.MeshBasicMaterial({color:0xEEF2FF}));P.scene.add(sun);P.scene.add(moon);
+        ring=new THREE.Mesh(new THREE.RingGeometry(.93,1,96),new THREE.MeshBasicMaterial({color:0x40FFC6,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));P.root.add(ring)},
+      tick:function(t){var Y=9,T=t%Y,ph=T/Y,s=Math.sin(ph*Math.PI*2),day=cl(s*1.8+.15),night=cl(-s*1.8+.1),dusk=day>0?Math.pow(1-Math.abs(s),3)*cl(day*4):0;
+        /* sun rises on the left, sets on the right; the moon follows half a turn behind */
+        var a=Math.PI-ph*Math.PI*2;
+        /* their path is drawn in the camera's own frame, so it rings the cube on screen whatever the viewing angle */
+        RT.set(1,0,0).applyQuaternion(P.cam.quaternion);UPV.set(0,1,0).applyQuaternion(P.cam.quaternion);FW.set(0,0,-1).applyQuaternion(P.cam.quaternion);
+        sun.position.copy(RT).multiplyScalar(Math.cos(a)*2.75).addScaledVector(UPV,Math.sin(a)*2.4).addScaledVector(FW,1);
+        moon.position.copy(RT).multiplyScalar(-Math.cos(a)*2.75).addScaledVector(UPV,-Math.sin(a)*2.4).addScaledVector(FW,1);
+        sun.visible=Math.sin(a)>-.35;moon.visible=Math.sin(a)<.35;
+        var hemi=lights[0],key=lights[1],rim=lights[2];
+        hemi.intensity=.22+.53*day;hemi.color.copy(HNIGHT).lerp(HDAY,day);
+        if(Math.sin(a)>=0){key.position.set(Math.cos(a)*7,Math.sin(a)*8+1,5);tmp.copy(NOON).lerp(WARM,dusk);key.color.copy(tmp);key.intensity=.25+.65*day}
+        else{key.position.set(-Math.cos(a)*7,-Math.sin(a)*8+1,5);key.color.copy(MOONL);key.intensity=.28}
+        rim.intensity=.2+.2*day;
+        mats.forEach(function(m){m.emissiveIntensity=.07+.95*night});
+        /* the sky behind: warm by day, rose at dusk, deep blue with stars at night */
+        var c=mix([255,226,170,.55],[255,150,120,.5],dusk);c=mix(c,[9,13,44,.82],night);
+        host.style.setProperty('--sky','rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+c[3].toFixed(2)+')');host.style.setProperty('--night',night.toFixed(2));
+        /* the turntable */
+        P.root.rotation.y+=t*.24;
+        /* one slip a night, a different layer each year, snapped straight back */
+        var n=Math.floor(t/Y),S=SLIPS[n%SLIPS.length],u=seg(T,5.9,7.0),beta=0;
+        if(u>0&&u<1){beta=u<.28?eio(u/.28)*.55:(u<.46?.55+Math.sin((u-.28)*90)*.02:.55*(1-eback((u-.46)/.54)))}
+        Q.setFromAxisAngle(AX[S.a],beta);
+        P.cubies.forEach(function(cb,i){var b=base[i];if(beta&&Math.round(b[S.a])===S.l){cb.position.copy(b).applyQuaternion(Q);cb.quaternion.copy(Q)}else{cb.position.copy(b);cb.quaternion.set(0,0,0,1)}});
+        var f=seg(T,6.35,7.1);ring.visible=f>0&&f<1;if(ring.visible){ring.position.set(0,0,0);ring.position[S.a]=S.l;ring.rotation.set(S.a==='y'?-Math.PI/2:0,S.a==='x'?Math.PI/2:0,0);ring.scale.setScalar(1.6+f*1.3);ring.material.opacity=(1-f)*.85}
+        if(T>6.5&&T<6.8&&!popped){popped=true;v0.pop()}if(T<1)popped=false;
+        /* a new year every sunrise */
+        var y=(n%9)+1;if(y!==lastY){yr.textContent=y;if(lastY>0){tag.classList.add('tick');setTimeout(function(){tag.classList.remove('tick')},380)}lastY=y}}}}
   ];
 
   var cards=$$('#stack .card');
   hosts.forEach(function(host){
     var k=+host.getAttribute('data-stage')||0,card=host.closest('.card'),next=cards[cards.indexOf(card)+1],mode=MODES[k](host),t0=0,v=null,ready=false;
     function active(){if(!next)return true;var a=card.getBoundingClientRect(),b=next.getBoundingClientRect();return b.top>a.top+a.height*.5}
-    function build(){if(v)return;v=Cube.view(host,{R:mode.R,uniqueTiles:mode.uniqueTiles,active:active,tick:function(now){if(!ready)return;mode.tick(t0?(now-t0)/1000:0)}});
+    function build(){if(v)return;v=Cube.view(host,{R:mode.R,uniqueTiles:mode.uniqueTiles,active:active,tick:function(now){if(!ready)return;mode.tick(t0?Math.max(0,(now-t0)/1000):0)}});
       if(!v){host.classList.add('flat');return}host.classList.add('live');mode.init(v);ready=true;v.set({idle:1})}
     if(window.IntersectionObserver){
       new IntersectionObserver(function(es){if(es[0].isIntersecting)build()},{rootMargin:'600px 0px'}).observe(host);

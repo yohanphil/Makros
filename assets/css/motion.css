@@ -129,3 +129,6 @@
 @keyframes cl7{0%,42.5%{background:#232A5C;transform:translateZ(0)}46.5%{background:#9A8CFA;transform:translateZ(26px)}51%,60%{background:#9A8CFA;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
 .clFace .o8{animation:cl8 3s cubic-bezier(.3,.7,.3,1) infinite}
 @keyframes cl8{0%,48%{background:#232A5C;transform:translateZ(0)}52%{background:#3BBDFF;transform:translateZ(26px)}56.5%,60%{background:#3BBDFF;transform:translateZ(0)}66%,88%{background:#3BBDFF;transform:translateZ(0)}96%,100%{background:#232A5C;transform:translateZ(0)}}
+
+/* Stay card: the stars behind the cube twinkle at night */
+@keyframes twinkle{from{filter:brightness(.7)}to{filter:brightness(1.25)}}

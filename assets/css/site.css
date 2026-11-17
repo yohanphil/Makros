@@ -522,8 +522,27 @@ fieldset.field{border:0;margin:0;padding:0}
 @media (max-width:700px){.cardCube{width:min(70vw,280px);justify-self:center;margin-top:-8px}}
 
 /* Deliver: the weekly progress bar under the cube */
-.wkBar{position:absolute;left:10%;right:10%;bottom:1%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;font:600 12px/1 var(--f-body);color:rgba(255,255,255,.72);letter-spacing:.01em}
+.wkBar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:28px;max-width:380px;font:600 12px/1 var(--f-body);color:rgba(255,255,255,.72);letter-spacing:.01em}
 .wkBar span{display:grid;gap:8px;white-space:nowrap}
 .wkBar i{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.16);overflow:hidden}
 .wkBar b{display:block;height:100%;background:#40FFC6;transform:scaleX(0);transform-origin:0 50%}
-.cardCube.flat .wkBar{display:none}
+.card:has(.cardCube.flat) .wkBar{display:none}
+
+/* Deliver: the team names that ride beside each layer while the cube is apart */
+.teamTag{position:absolute;left:0;top:0;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);font:600 12px/1 var(--f-body);color:#fff;white-space:nowrap;opacity:0;pointer-events:none;will-change:transform,opacity}
+@media (max-width:700px){.teamTag{font-size:11px;padding:5px 9px}}
+/* Stay: a round patch of sky behind the cube that runs from day to night, and the year count */
+.cardCube .sky{position:absolute;inset:3%;border-radius:50%;background:radial-gradient(closest-side,var(--sky,rgba(255,226,170,.55)) 0,var(--sky,rgba(255,226,170,.55)) 45%,rgba(0,0,0,0) 100%);pointer-events:none}
+.cardCube .sky i{position:absolute;inset:10%;border-radius:50%;opacity:var(--night,0);background:
+  radial-gradient(2.4px 2.4px at 18% 30%,#fff 98%,transparent),radial-gradient(1.8px 1.8px at 32% 14%,#fff 98%,transparent),
+  radial-gradient(2.6px 2.6px at 74% 20%,#fff 98%,transparent),radial-gradient(1.8px 1.8px at 86% 44%,#fff 98%,transparent),
+  radial-gradient(2.2px 2.2px at 12% 62%,#fff 98%,transparent),radial-gradient(1.8px 1.8px at 62% 9%,#fff 98%,transparent),
+  radial-gradient(2.4px 2.4px at 90% 70%,#fff 98%,transparent),radial-gradient(1.8px 1.8px at 24% 84%,#fff 98%,transparent),
+  radial-gradient(2px 2px at 46% 92%,#fff 98%,transparent),radial-gradient(1.8px 1.8px at 80% 88%,#fff 98%,transparent),
+  radial-gradient(1.6px 1.6px at 8% 42%,#fff 98%,transparent),radial-gradient(2px 2px at 54% 4%,#fff 98%,transparent),
+  radial-gradient(1.6px 1.6px at 94% 30%,#fff 98%,transparent),radial-gradient(2px 2px at 36% 96%,#fff 98%,transparent);
+  animation:twinkle 2.4s ease-in-out infinite alternate}
+.card:nth-child(4) .cardCube.stay::before{display:none}
+.yrTag{position:absolute;left:4%;top:4%;display:flex;align-items:baseline;gap:7px;font:600 13px/1 var(--f-body);color:rgba(255,255,255,.82);letter-spacing:.02em;white-space:nowrap}
+.yrTag b{display:inline-block;font:600 24px/1 var(--f-display);color:#fff;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.yrTag.tick b{transform:translateY(-5px) scale(1.18)}
