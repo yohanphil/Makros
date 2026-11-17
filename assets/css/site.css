@@ -595,3 +595,75 @@ fieldset.field{border:0;margin:0;padding:0}
 .cWrap .cubeHint{bottom:0}
 .cWrap.playing .cubeHint,.cWrap:hover .cubeHint{opacity:1;transform:translate(-50%,0)}
 @media (max-width:900px){.cWrap{width:min(88vw,380px);margin-top:8px}}
+
+/* ---------- leads: the short form at the end of every page ---------- */
+.qLead{margin-top:34px;max-width:620px}
+.qlHead{font-size:16px;line-height:1.5;color:#E3E4FF;margin:0 0 14px}
+.qlRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:10px}
+.qlF{display:block;min-width:0}
+.qlF input{width:100%;height:56px;padding:0 20px;border:0;border-radius:999px;font:16px var(--f-body);color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);transition:background .25s,box-shadow .25s}
+.qlF input::placeholder{color:rgba(255,255,255,.72)}
+.qlF input:focus{outline:none;background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 2px #fff}
+.qlF input[aria-invalid="true"]{box-shadow:inset 0 0 0 2px #FFD36B}
+.qLead .btn[disabled]{opacity:.7;cursor:progress}
+.qlNote{margin:12px 0 0;font-size:14px;color:rgba(255,255,255,.72)}
+.qlNote.bad{color:#FFE29A}
+.sr,.hp{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.qlDone{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:22px;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2)}
+.qlDone p{margin:0;font-size:16px;line-height:1.5;color:#fff}
+.qlTick{flex:none;width:40px;height:40px;border-radius:24%;background:#40FFC6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%230B1030' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/60% no-repeat;box-shadow:inset 0 -4px 0 rgba(11,16,48,.16),inset 0 4px 0 rgba(255,255,255,.3)}
+@media (max-width:700px){.qlRow{grid-template-columns:minmax(0,1fr)}.qLead .btn{width:100%}}
+
+/* ---------- leads: the pop up ---------- */
+.lp{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:20px}
+.lpBack{position:absolute;inset:0;background:rgba(11,16,48,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .4s}
+.lpCard{position:relative;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);width:min(920px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:30px;background:#fff;color:var(--ink);box-shadow:0 40px 90px -30px rgba(11,16,48,.6);opacity:0;transform:translateY(28px) scale(.97);transition:opacity .4s,transform .5s cubic-bezier(.2,.8,.2,1)}
+.lp.open .lpBack{opacity:1}
+.lp.open .lpCard{opacity:1;transform:none}
+.lpX{position:absolute;top:14px;right:14px;z-index:2;width:44px;height:44px;border:0;border-radius:50%;background:var(--step);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .2s}
+.lpX svg{width:20px;height:20px}
+.lpX:hover{background:var(--step2);transform:rotate(90deg)}
+.lpArt{position:relative;display:grid;place-items:center;align-content:center;gap:34px;min-height:100%;padding:48px 28px;background:#4A4FE6;color:#fff;overflow:hidden;perspective:1100px}
+.lpArt .clFace{--s:clamp(150px,17vw,200px)}
+.lpArt .clShade{position:absolute;left:50%;top:50%;width:200px;height:70px;margin:28px 0 0 -100px;background:radial-gradient(closest-side,rgba(11,16,48,.35),rgba(11,16,48,0))}
+.lpTag{position:relative;margin:0;font:600 22px/1.1 var(--f-display);letter-spacing:-.02em}
+.lpCard.solved .clFace{animation:none;transform:rotateX(56deg) rotateZ(45deg)}
+.lpCard.solved .clFace i{animation:none;background:#3BBDFF;transition:background .3s}
+.lpCard.solved .clFace i:nth-child(odd){transition-delay:.08s}
+.lpBody{padding:clamp(28px,4vw,48px);display:grid;align-content:center;gap:18px}
+.lpBody h2{margin:0;padding-right:44px;font:600 clamp(28px,3vw,40px)/1.05 var(--f-display);letter-spacing:-.03em}
+.lpSub{margin:0;font-size:17px;line-height:1.5;color:var(--ink2)}
+.lpForm{display:grid;gap:14px}
+.lpRow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lpF{display:grid;gap:7px;min-width:0}
+.lpF label{font-size:14px;font-weight:500;color:var(--ink2)}
+.lpF label span{font-weight:400;opacity:.8}
+.lpF input{font:16px var(--f-body);color:var(--ink);background:var(--ground);border:0;border-radius:14px;padding:14px 16px;width:100%;transition:box-shadow .25s,background .25s}
+.lpF input:focus{outline:none;background:#fff;box-shadow:inset 0 0 0 2px var(--accent)}
+.lpF input[aria-invalid="true"]{box-shadow:inset 0 0 0 2px #E5484D}
+.lpNeed{border:0;margin:0;padding:0}
+.lpNeed legend{font-size:14px;font-weight:500;color:var(--ink2);padding:0}
+.lpNeed .need span{height:40px;padding:0 16px;font-size:15px}
+.lpErr{margin:0;min-height:0;font-size:14px;color:#C2353A}
+.lpErr:empty{display:none}
+.lpForm .btn{justify-self:start}
+.lpForm .btn[disabled]{opacity:.7;cursor:progress}
+.lpNote{margin:0;font-size:13px;color:var(--ink2)}
+.lpLater{border:0;background:none;padding:0 0 0 6px;font:inherit;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.lpDone{display:grid;gap:16px;justify-items:start}
+.lpDone h2{padding-right:44px}
+.lpDone p{margin:0;font-size:17px;line-height:1.5;color:var(--ink2)}
+@media (max-width:760px){
+  .lp{place-items:end center;padding:0}
+  .lpCard{grid-template-columns:minmax(0,1fr);border-radius:28px 28px 0 0;max-height:92vh;transform:translateY(100%)}
+  .lp.open .lpCard{transform:none}
+  .lpArt{min-height:0;padding:22px 24px 18px;grid-template-columns:auto 1fr;gap:18px;justify-items:start;place-items:center start}
+  .lpArt .clFace{--s:72px}
+  .lpArt .clShade{display:none}
+  .lpTag{font-size:19px}
+  .lpRow{grid-template-columns:minmax(0,1fr)}
+  .lpBody{padding:22px 24px calc(24px + env(safe-area-inset-bottom,0px))}
+  .lpForm .btn{width:100%}
+}
+@media (prefers-reduced-motion:reduce){.lpCard,.lpBack{transition:none}}
+.lpCard.solved #lpH,.lpCard.solved .lpSub{display:none}

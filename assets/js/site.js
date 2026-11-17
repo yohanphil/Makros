@@ -319,40 +319,22 @@ if(hero||heroSvg){
 }
 
 /* ---------- contact: the home page cube beside the heading ----------
-   It flies in and solves itself, floats, and every few seconds scrambles and solves again. Visitors can drag its rows;
-   if they leave it scrambled it waits a little, then solves their moves back. */
+   It flies in and solves itself, then floats, and every few seconds scrambles and solves again. It is not a game here:
+   no dragging, so on a phone the page scrolls past it freely. */
 (function(){
   var host=$('#contactCube');if(!host)return;
-  var wrap=host.parentElement,load=host.querySelector('.cubeLoad'),hint=wrap.querySelector('.cubeHint');
-  var st=Cube?Cube.solved():null,busy=true,hist=[],mine=false,hov=false,T=0,shown=false;
-  var v=Cube?Cube.view(host,{tilt:wrap,play:{
-    canTurn:function(){return !busy},
-    turn:function(m){turn(m)},
-    touched:function(){clearTimeout(T);if(v)v.set({idle:0})},
-    hover:function(on){hov=on;wrap.classList.toggle('playing',on||mine);if(on){clearTimeout(T);v.set({idle:0})}else if(!busy){v.set({idle:1});later()}}
-  }}):null;
+  var load=host.querySelector('.cubeLoad'),v=Cube?Cube.view(host,{tilt:host.parentElement}):null,st=null,T=0,shown=true;
   if(load){if(v){load.classList.add('out');setTimeout(function(){load.remove()},700)}else load.remove()}
-  if(!v){host.classList.add('flat');if(hint)hint.hidden=true;return}
+  if(!v){host.classList.add('flat');return}
   host.classList.add('live');
-  function say(t){if(hint)hint.textContent=t}
-  function settle(byHand){v.pop();v.set({spin:v.get().spin%(Math.PI*2),idle:hov?0:1});busy=false;hist=[];mine=false;wrap.classList.toggle('playing',hov);
-    say(byHand?'You solved it. Nicely done.':'Drag any row to turn it.');later()}
-  function later(){clearTimeout(T);T=setTimeout(function go(){if(busy)return;if(hov||document.hidden||!shown){T=setTimeout(go,1500);return}
-    if(mine){solveBack();return}show()},mine?8000:7000)}
-  function show(){busy=true;v.set({idle:0});var mv=Cube.rand(10);
+  if(window.IntersectionObserver)new IntersectionObserver(function(es){shown=es[0].isIntersecting}).observe(host);
+  function settle(){v.pop();v.set({spin:v.get().spin%(Math.PI*2),idle:1});clearTimeout(T);T=setTimeout(function go(){if(!shown||document.hidden){T=setTimeout(go,1500);return}show()},6500)}
+  function show(){v.set({idle:0});var mv=Cube.rand(10);
     animProps(v,{lift:.3,scale:.92},260,easeIO)
     .then(function(){return playMoves(v,st,mv,90,[0,Math.PI])})
     .then(function(s){st=s;return wait(240)})
     .then(function(){return Promise.all([playMoves(v,st,Cube.inverse(mv),180,[Math.PI,Math.PI*3]),animProps(v,{lift:0,scale:1},520,easeIO)])})
     .then(function(r){st=r[0];settle()})}
-  function solveBack(){var mv=tidy(Cube.inverse(hist));if(!mv.length){settle();return}busy=true;say('Solving '+mv.length+(mv.length===1?' move.':' moves.'));
-    playMoves(v,st,mv,Math.max(80,Math.min(200,3600/mv.length)),[0,Math.PI*2]).then(function(s){st=s;v.set({spin:0});settle()})}
-  function turn(m){if(busy)return;clearTimeout(T);mine=true;busy=true;wrap.classList.add('playing');v.set({idle:0});
-    playMoves(v,st,[m],230).then(function(s){st=s;hist.push(m);busy=false;
-      if(isSolved(st)){settle(true);return}
-      say(hist.length+(hist.length===1?' turn.':' turns.')+' Leave it and it solves itself.');later()})}
-  if(window.IntersectionObserver)new IntersectionObserver(function(es){shown=es[0].isIntersecting}).observe(host);else shown=true;
-  /* the entrance: scrambled, it flies in and solves itself */
   var scr=Cube.rand(12);st=scrambledBy(scr);v.show(st);v.set({scale:.3,spin:-Math.PI*1.25,lift:1.1,idle:0});
   wait(250).then(function(){return animProps(v,{scale:1,spin:0,lift:0},1000,easeOut)})
   .then(function(){return wait(80)})
@@ -608,6 +590,100 @@ function erp(){var s=SIZE[size];$('#erpTitle').textContent='A '+ind.toLowerCase(
 function opts(id,set){$$('#'+id+' button').forEach(function(b){b.addEventListener('click',function(){$$('#'+id+' button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});set(b.textContent);erp()})})}
 opts('indOpts',function(v){ind=v});opts('sizeOpts',function(v){size=v});
 
+/* ---------- leads ----------
+   Every form sends straight to the Makros inbox through FormSubmit. If that fails, or before the inbox has confirmed
+   the form once, the visitor's email app opens with their details ready instead, so no lead is lost. */
+var LEAD_TO='hello@makrossolutions.com';
+function sendLead(d){
+  if(d._honey)return Promise.resolve('sent');
+  var body={_subject:'Makros website lead: '+d.Name+(d.Source?' ('+d.Source+')':''),_template:'table',_captcha:'false'},k,lines=[];
+  for(k in d)if(d[k]&&k!=='_honey'){body[k]=d[k];lines.push(k+': '+d[k])}
+  body.Page=(location.pathname.split('/').pop()||'index.html');
+  var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort()},9000);
+  return fetch('https://formsubmit.co/ajax/'+LEAD_TO,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})
+    .then(function(r){return r.json()})
+    .then(function(j){clearTimeout(to);if(String(j.success)!=='true')throw 0;try{localStorage.setItem('mkLead','1')}catch(e){}return 'sent'})
+    .catch(function(){clearTimeout(to);location.href='mailto:'+LEAD_TO+'?subject='+encodeURIComponent('Website enquiry from '+d.Name)+'&body='+encodeURIComponent(lines.join('\n'));return 'mail'});
+}
+var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function reachOf(v){v=v.trim();if(EMAIL_RE.test(v))return {Email:v};if((v.match(/\d/g)||[]).length>=7)return {Phone:v};return null}
+function firstName(n){return n.trim().split(/\s+/)[0]}
+
+/* the short form at the end of every page: name, a phone number or email, and one button */
+(function(){
+  var secs=$$('main section.field-accent');if(!secs.length)return;
+  var col=secs[secs.length-1].querySelector('.closeGrid > div');if(!col)return;
+  var f=document.createElement('form');f.className='qLead';f.noValidate=true;f.setAttribute('aria-label','Talk to a director');
+  f.innerHTML='<p class="qlHead">Or leave your name and a phone number or email. A director will get back to you personally.</p>'+
+    '<div class="qlRow"><label class="qlF"><span class="sr">Your name</span><input class="qlName" placeholder="Your name" autocomplete="name"></label>'+
+    '<label class="qlF"><span class="sr">Phone or email</span><input class="qlReach" placeholder="Phone or email" autocomplete="email"></label>'+
+    '<button class="btn light" type="submit">Talk to a director</button></div>'+
+    '<input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+    '<p class="qlNote" role="status" aria-live="polite">We only use your details to get back to you.</p>';
+  col.appendChild(f);
+  var src=(document.querySelector('main section.field-accent:last-of-type h2')||{}).textContent||'';
+  f.addEventListener('submit',function(e){e.preventDefault();
+    var ni=f.querySelector('.qlName'),ri=f.querySelector('.qlReach'),n=ni.value.trim(),r=reachOf(ri.value),note=f.querySelector('.qlNote'),b=f.querySelector('button');
+    ni.setAttribute('aria-invalid',String(!n));ri.setAttribute('aria-invalid',String(!r));
+    if(!n||!r){note.textContent=!n?'Please tell us your name.':'Add a phone number or an email so we can reach you.';note.classList.add('bad');(n?ri:ni).focus();return}
+    var d={Name:n,Source:'End of page form: '+src.trim(),_honey:f.querySelector('.hp').value};for(var k in r)d[k]=r[k];
+    b.disabled=true;b.textContent='Sending';
+    sendLead(d).then(function(how){f.classList.add('done');
+      f.innerHTML='<div class="qlDone"><span class="qlTick" aria-hidden="true"></span><p><b>Thank you, '+firstName(n).replace(/[<>&"]/g,'')+'.</b> '+(how==='sent'?'A director will be in touch soon.':'Your email app is open with your details ready. Press send there to reach us.')+'</p></div>';
+      try{sessionStorage.setItem('mkPop','1')}catch(e){}})});
+})();
+
+/* the pop up: once a visit, after the visitor has scrolled part of the way down (never on Contact, never after a lead) */
+(function(){
+  if(/contact\.html$/.test(location.pathname)||!$('main'))return;
+  var seen=false;try{seen=sessionStorage.getItem('mkPop')||localStorage.getItem('mkLead')}catch(e){}
+  if(seen)return;
+  var order=[0,1,2,7,8,3,6,5,4],tiles=order.map(function(o){return '<i class="o'+o+'"></i>'}).join('');
+  var el=document.createElement('div');el.className='lp';el.hidden=true;
+  el.innerHTML='<div class="lpBack" data-close></div>'+
+   '<div class="lpCard" role="dialog" aria-modal="true" aria-labelledby="lpH" aria-describedby="lpSub">'+
+   '<button class="lpX" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>'+
+   '<div class="lpArt" aria-hidden="true"><div class="clFace"><b style="--z:5"></b><b style="--z:10"></b><b style="--z:15"></b><b style="--z:20"></b>'+tiles+'</div><span class="clShade"></span><p class="lpTag">Complexity, solved.</p></div>'+
+   '<div class="lpBody">'+
+   '<h2 id="lpH">What\'s tangled in your business?</h2><p class="lpSub" id="lpSub">Leave your details. A director will get back to you personally.</p>'+
+   '<form class="lpForm" novalidate>'+
+   '<div class="lpF"><label for="lp-name">Your name</label><input id="lp-name" autocomplete="name"></div>'+
+   '<div class="lpRow"><div class="lpF"><label for="lp-email">Email</label><input id="lp-email" type="email" autocomplete="email"></div>'+
+   '<div class="lpF"><label for="lp-phone">Phone <span>(optional)</span></label><input id="lp-phone" type="tel" autocomplete="tel"></div></div>'+
+   '<fieldset class="lpNeed"><legend>Where can we help?</legend><div class="need">'+['Technology','Operations','Studio','Not sure yet'].map(function(t){return '<label><input type="checkbox" value="'+t+'"><span>'+t+'</span></label>'}).join('')+'</div></fieldset>'+
+   '<input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+   '<p class="lpErr" role="alert"></p>'+
+   '<button class="btn mag" type="submit">Talk to a director</button>'+
+   '<p class="lpNote">We only use your details to get back to you. <button type="button" class="lpLater" data-close>Not now</button></p>'+
+   '</form>'+
+   '<div class="lpDone" hidden><h2>Thank you, <span></span>.</h2><p></p><button class="btn quiet" type="button" data-close>Back to the page</button></div>'+
+   '</div></div>';
+  document.body.appendChild(el);
+  var card=el.querySelector('.lpCard'),form=el.querySelector('.lpForm'),err=el.querySelector('.lpErr'),back=null,t0=Date.now(),opened=false;
+  function focusables(){return $$('button:not([disabled]),input:not(.hp),a[href]',card).filter(function(x){return x.offsetParent!==null})}
+  function open(){if(opened)return;opened=true;try{sessionStorage.setItem('mkPop','1')}catch(e){}
+    back=document.activeElement;el.hidden=false;void el.offsetWidth;el.classList.add('open');if(lenis)lenis.stop();
+    setTimeout(function(){var f=$('#lp-name');if(f)f.focus({preventScroll:true})},420)}
+  function close(){el.classList.remove('open');if(lenis)lenis.start();setTimeout(function(){el.hidden=true},450);if(back&&back.focus)back.focus({preventScroll:true})}
+  el.addEventListener('click',function(e){if(e.target.closest('[data-close]'))close()});
+  el.addEventListener('keydown',function(e){if(e.key==='Escape'){close();return}
+    if(e.key==='Tab'){var f=focusables(),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+  form.addEventListener('submit',function(e){e.preventDefault();
+    var n=$('#lp-name').value.trim(),em=$('#lp-email').value.trim(),ph=$('#lp-phone').value.trim(),ok=EMAIL_RE.test(em);
+    $('#lp-name').setAttribute('aria-invalid',String(!n));$('#lp-email').setAttribute('aria-invalid',String(!ok));
+    if(!n||!ok){err.textContent=!n?'Please tell us your name.':'Enter an email like name@company.com so we can reply.';(n?$('#lp-email'):$('#lp-name')).focus();return}
+    err.textContent='';var b=form.querySelector('[type=submit]');b.disabled=true;b.textContent='Sending';
+    var need=$$('.lpNeed input:checked',form).map(function(c){return c.value}).join(', ');
+    sendLead({Name:n,Email:em,Phone:ph,Interested_in:need,Source:'Pop up',_honey:form.querySelector('.hp').value}).then(function(how){
+      card.classList.add('solved');form.hidden=true;var d=el.querySelector('.lpDone');d.hidden=false;d.querySelector('span').textContent=firstName(n);
+      d.querySelector('p').textContent=how==='sent'?'Your details are with the Makros directors. One of us will be in touch soon.':'Your email app is open with your details ready. Press send there and it reaches the directors.';
+      d.querySelector('button').focus({preventScroll:true})})});
+  function check(){if(opened)return;var h=document.documentElement.scrollHeight-innerHeight,y=window.scrollY;
+    if(Date.now()-t0<5000||y<Math.min(h*.35,innerHeight*1.5)||navOpen||document.querySelector('input:focus,textarea:focus'))return;
+    window.removeEventListener('scroll',check);open()}
+  window.addEventListener('scroll',check,{passive:true});
+})();
+
 /* ---------- contact ---------- */
 var form=$('#cform');
 if(form){
@@ -618,10 +694,13 @@ if(form){
     $('#e-email').textContent=ev?'':'Enter an email like name@company.com so we can reply.';
     n.setAttribute('aria-invalid',String(!nv));em.setAttribute('aria-invalid',String(!ev));
     if(!nv||!ev){(nv?em:n).focus();return}
-    var needs=$$('.need input:checked').map(function(c){return c.value}).join(', ')||'Not specified';
-    var body='Name: '+nv+'\nCompany: '+($('#f-co').value.trim()||'Not given')+'\nEmail: '+em.value.trim()+'\nPhone: '+($('#f-phone').value.trim()||'Not given')+'\nHelp with: '+needs+'\n\n'+$('#f-msg').value.trim();
-    location.href='mailto:hello@makrossolutions.com?subject='+encodeURIComponent('Website enquiry from '+nv)+'&body='+encodeURIComponent(body);
-    $('#sName').textContent=nv.split(' ')[0];$('#formBody').hidden=true;$('#sent').hidden=false;
+    var needs=$$('.need input:checked').map(function(c){return c.value}).join(', ');
+    var btn=form.querySelector('[type=submit]'),label=btn.innerHTML;btn.disabled=true;btn.textContent='Sending';
+    sendLead({Name:nv,Company:$('#f-co').value.trim(),Email:em.value.trim(),Phone:$('#f-phone').value.trim(),Interested_in:needs,Message:$('#f-msg').value.trim(),Source:'Contact page form',_honey:''}).then(function(how){
+      btn.disabled=false;btn.innerHTML=label;
+      $('#sName').textContent=firstName(nv);
+      $('#sentMsg').innerHTML=how==='sent'?'Your message is with the Makros directors. A director will reply personally.':'Your email app should now be open with your message ready. Press send there and it goes straight to the Makros directors. Nothing opened? Write to <a href="mailto:hello@makrossolutions.com">hello@makrossolutions.com</a>.';
+      $('#formBody').hidden=true;$('#sent').hidden=false});
   });
   $('#again').addEventListener('click',function(){form.reset();$('#formBody').hidden=false;$('#sent').hidden=true;$('#f-name').focus()});
 }
