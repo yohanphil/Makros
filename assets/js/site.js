@@ -633,11 +633,12 @@ function firstName(n){return n.trim().split(/\s+/)[0]}
       try{sessionStorage.setItem('mkPop','1')}catch(e){}})});
 })();
 
-/* the pop up: once a visit, after the visitor has scrolled part of the way down (never on Contact, never after a lead) */
+/* the pop up: it opens by itself once a visit, after the visitor has scrolled part of the way down (never on Contact,
+   never after a lead), and the hanging Stuck? button opens it any time */
+var leadPop=null;
 (function(){
   if(/contact\.html$/.test(location.pathname)||!$('main'))return;
   var seen=false;try{seen=sessionStorage.getItem('mkPop')||localStorage.getItem('mkLead')}catch(e){}
-  if(seen)return;
   var order=[0,1,2,7,8,3,6,5,4],tiles=order.map(function(o){return '<i class="o'+o+'"></i>'}).join('');
   var el=document.createElement('div');el.className='lp';el.hidden=true;
   el.innerHTML='<div class="lpBack" data-close></div>'+
@@ -661,7 +662,9 @@ function firstName(n){return n.trim().split(/\s+/)[0]}
   document.body.appendChild(el);
   var card=el.querySelector('.lpCard'),form=el.querySelector('.lpForm'),err=el.querySelector('.lpErr'),back=null,t0=Date.now(),opened=false;
   function focusables(){return $$('button:not([disabled]),input:not(.hp),a[href]',card).filter(function(x){return x.offsetParent!==null})}
-  function open(){if(opened)return;opened=true;try{sessionStorage.setItem('mkPop','1')}catch(e){}
+  var src='Pop up';
+  function open(from){if(el.classList.contains('open'))return;opened=true;src=from||'Pop up';try{sessionStorage.setItem('mkPop','1')}catch(e){}
+    if(card.classList.contains('solved')){card.classList.remove('solved');form.reset();form.hidden=false;el.querySelector('.lpDone').hidden=true;var sb=form.querySelector('[type=submit]');sb.disabled=false;sb.textContent='Talk to a director'}
     back=document.activeElement;el.hidden=false;void el.offsetWidth;el.classList.add('open');if(lenis)lenis.stop();
     setTimeout(function(){var f=$('#lp-name');if(f)f.focus({preventScroll:true})},420)}
   function close(){el.classList.remove('open');if(lenis)lenis.start();setTimeout(function(){el.hidden=true},450);if(back&&back.focus)back.focus({preventScroll:true})}
@@ -674,14 +677,37 @@ function firstName(n){return n.trim().split(/\s+/)[0]}
     if(!n||!ok){err.textContent=!n?'Please tell us your name.':'Enter an email like name@company.com so we can reply.';(n?$('#lp-email'):$('#lp-name')).focus();return}
     err.textContent='';var b=form.querySelector('[type=submit]');b.disabled=true;b.textContent='Sending';
     var need=$$('.lpNeed input:checked',form).map(function(c){return c.value}).join(', ');
-    sendLead({Name:n,Email:em,Phone:ph,Interested_in:need,Source:'Pop up',_honey:form.querySelector('.hp').value}).then(function(how){
+    sendLead({Name:n,Email:em,Phone:ph,Interested_in:need,Source:src,_honey:form.querySelector('.hp').value}).then(function(how){
       card.classList.add('solved');form.hidden=true;var d=el.querySelector('.lpDone');d.hidden=false;d.querySelector('span').textContent=firstName(n);
       d.querySelector('p').textContent=how==='sent'?'Your details are with the Makros directors. One of us will be in touch soon.':'Your email app is open with your details ready. Press send there and it reaches the directors.';
       d.querySelector('button').focus({preventScroll:true})})});
   function check(){if(opened)return;var h=document.documentElement.scrollHeight-innerHeight,y=window.scrollY;
     if(Date.now()-t0<5000||y<Math.min(h*.35,innerHeight*1.5)||navOpen||document.querySelector('input:focus,textarea:focus'))return;
     window.removeEventListener('scroll',check);open()}
-  window.addEventListener('scroll',check,{passive:true});
+  leadPop={open:open};
+  if(!seen)window.addEventListener('scroll',check,{passive:true});
+})();
+
+/* the hanging button: a tag on a string at the top right that turns between Stuck? and Need to speak? like a cube face,
+   swings when the page scrolls and now and then on its own, and opens the pop up. On phones it sits at the bottom left. */
+(function(){
+  if(!leadPop)return;
+  var b=document.createElement('button');b.type='button';b.className='hang';b.setAttribute('aria-label','Stuck? Need to speak? Talk to a director');
+  b.innerHTML='<span class="hgSw" aria-hidden="true"><span class="hgStr"></span><span class="hgTag"><span class="hgBox">'+
+    '<span class="hgF"><img src="assets/img/mks-logo.svg" alt="" width="20" height="19">Stuck?</span><span class="hgT">Need to speak?</span></span></span></span>';
+  document.body.appendChild(b);
+  var sw=b.querySelector('.hgSw'),box=b.querySelector('.hgBox'),ang=0,vel=0,ly=window.scrollY,raf=0,
+      calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function step(){raf=0;vel+=-ang*.02-vel*.04;ang+=vel;
+    if(Math.abs(ang)<.03&&Math.abs(vel)<.03){ang=0;vel=0;sw.style.transform='';return}
+    sw.style.transform='rotate('+ang.toFixed(2)+'deg)';raf=requestAnimationFrame(step)}
+  function kick(v){if(calm||!WIDE.matches||!b.classList.contains('show'))return;vel=Math.max(-1.6,Math.min(1.6,vel+v));if(!raf)raf=requestAnimationFrame(step)}
+  function onS(){var y=window.scrollY,dy=y-ly;ly=y;b.classList.toggle('show',y>220);kick(-dy*.015)}
+  window.addEventListener('scroll',onS,{passive:true});onS();
+  setInterval(function(){if(!document.hidden&&!b.matches(':hover'))box.classList.toggle('flip')},3400);
+  setInterval(function(){if(!document.hidden)kick(1.1)},9000);
+  b.addEventListener('pointerenter',function(){box.classList.add('flip');kick(.8)});
+  b.addEventListener('click',function(){leadPop.open('Stuck? button')});
 })();
 
 /* ---------- contact ---------- */

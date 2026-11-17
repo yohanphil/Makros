@@ -667,3 +667,33 @@ fieldset.field{border:0;margin:0;padding:0}
 }
 @media (prefers-reduced-motion:reduce){.lpCard,.lpBack{transition:none}}
 .lpCard.solved #lpH,.lpCard.solved .lpSub{display:none}
+
+/* ---------- the hanging Stuck? button ----------
+   A tag on a string at the top right, shown once the visitor has scrolled. It turns between two faces like a cube row
+   and swings a little; it opens the lead pop up. On phones it is a pill at the bottom left. */
+.hang{position:fixed;top:0;right:clamp(20px,3vw,44px);z-index:57;padding:0;border:0;background:none;cursor:pointer;
+  opacity:0;visibility:hidden;transform:translateY(-120%);
+  transition:transform .8s cubic-bezier(.2,.9,.25,1.15),opacity .3s,visibility 0s linear .8s}
+.hang.show{opacity:1;visibility:visible;transform:none;transition:transform .8s cubic-bezier(.2,.9,.25,1.15),opacity .3s,visibility 0s}
+.hgSw{display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;will-change:transform}
+.hgStr{position:relative;width:2px;height:62px;background:linear-gradient(rgba(91,97,128,.2),rgba(91,97,128,.8))}
+.hgStr::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;margin-left:-5px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(91,97,128,.85)}
+.hgTag{position:relative;display:block;width:178px;height:58px;margin-top:3px;perspective:520px}
+.hgBox{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transform:translateZ(-29px);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.hgBox.flip{transform:translateZ(-29px) rotateX(-90deg)}
+.hgF,.hgT{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:9px;border-radius:18px;font:600 17px/1 var(--f-display);letter-spacing:-.01em;white-space:nowrap;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.hgF{background:#45D4FF;color:#0B1030;transform:translateZ(29px);box-shadow:inset 0 -5px 0 rgba(11,16,48,.16),inset 0 5px 0 rgba(255,255,255,.3),0 16px 30px -14px rgba(11,16,48,.55)}
+.hgF img{width:20px;height:19px}
+.hgT{background:#0B1030;color:#fff;transform:rotateX(90deg) translateZ(29px);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.18),0 16px 30px -14px rgba(11,16,48,.55)}
+.hang:hover .hgF,.hang:hover .hgT{filter:brightness(1.06)}
+.hang:focus-visible{outline:none}
+.hang:focus-visible .hgTag{outline:3px solid #4A4FE6;outline-offset:4px;border-radius:20px}
+@media (max-width:900px){
+  .hang{top:auto;right:auto;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(160%)}
+  .hgStr{display:none}
+  .hgTag{width:162px;height:52px;margin:0}
+  .hgBox{transform:translateZ(-26px)}.hgBox.flip{transform:translateZ(-26px) rotateX(-90deg)}
+  .hgF{transform:translateZ(26px)}.hgT{transform:rotateX(90deg) translateZ(26px)}
+  .hgF,.hgT{font-size:16px;border-radius:999px}
+}
+@media (prefers-reduced-motion:reduce){.hgBox{transition:none}}
