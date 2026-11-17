@@ -103,7 +103,7 @@ var Cube=(function(){
     var G2=geo(),body=new THREE.MeshStandardMaterial({color:0x0D0F1C,roughness:.42,metalness:.15});
     var MAT={};Object.keys(FACE).forEach(function(k){MAT[k]=new THREE.MeshStandardMaterial({color:FACE[k],roughness:.3,metalness:0,emissive:FACE[k],emissiveIntensity:.07})});
     var O=.5,cubies=[],tiles=[];
-    function tile(g,k,n,rx,ry){var m=new THREE.Mesh(G2.tile,MAT[k]);m.rotation.set(rx,ry,0);m.position.copy(n).multiplyScalar(O+.01);m.userData={cubie:g,n:n.clone()};g.add(m);tiles.push(m)}
+    function tile(g,k,n,rx,ry){var m=new THREE.Mesh(G2.tile,opts.uniqueTiles?MAT[k].clone():MAT[k]);m.rotation.set(rx,ry,0);m.position.copy(n).multiplyScalar(O+.01);m.userData={cubie:g,n:n.clone(),k:k};g.add(m);tiles.push(m)}
     for(var x=-1;x<=1;x++)for(var y=-1;y<=1;y++)for(var z=-1;z<=1;z++){
       var g=new THREE.Group();g.add(new THREE.Mesh(G2.body,body));
       if(x===1)tile(g,'px',new THREE.Vector3(1,0,0),0,Math.PI/2);
@@ -119,8 +119,8 @@ var Cube=(function(){
     var tgx=0,tgy=0,rx=0,ry=0,ux=0,uy=0,vis=true,pop=-1,ex={spin:0,lift:0,scale:1,idle:0,scroll:0},ia=0;
     if(opts.tilt&&FINE&&!RM){var area=opts.tilt;area.addEventListener('pointermove',function(e){var b=area.getBoundingClientRect();tgy=((e.clientX-b.left)/b.width-.5)*.3;tgx=((e.clientY-b.top)/b.height-.5)*.16});area.addEventListener('pointerleave',function(){tgx=0;tgy=0})}
     if(window.IntersectionObserver)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(host);
-    function draw(now){rx+=(tgx-rx)*.07;ry+=(tgy-ry)*.07;ia+=((ex.idle?1:0)-ia)*.03;var tt=now/1000;root.rotation.x=rx+ux+ex.scroll*.35+Math.sin(tt*.9)*.06*ia;root.rotation.y=ry+uy+ex.spin+ex.scroll*Math.PI*.5+Math.sin(tt*.6)*.28*ia;root.position.y=ex.lift+Math.sin(tt*1.5)*.14*ia;var s=1;if(pop>0){var t=(now-pop)/520;if(t<1)s=1+.07*Math.sin(Math.PI*t);else pop=-1}root.scale.setScalar(s*ex.scale);r.render(scene,cam)}
-    (function loop(now){if(vis&&!document.hidden&&host.offsetParent!==null)draw(now);requestAnimationFrame(loop)})(0);
+    function draw(now){rx+=(tgx-rx)*.07;ry+=(tgy-ry)*.07;ia+=((ex.idle?1:0)-ia)*.03;var tt=now/1000;root.rotation.x=rx+ux+ex.scroll*.35+Math.sin(tt*.9)*.06*ia;root.rotation.y=ry+uy+ex.spin+ex.scroll*Math.PI*.5+Math.sin(tt*.6)*.28*ia;root.position.y=ex.lift+Math.sin(tt*1.5)*.14*ia;var s=1;if(pop>0){var t=(now-pop)/520;if(t<1)s=1+.07*Math.sin(Math.PI*t);else pop=-1}root.scale.setScalar(s*ex.scale);if(opts.tick)opts.tick(now);r.render(scene,cam)}
+    (function loop(now){if(vis&&!document.hidden&&host.offsetParent!==null&&(!opts.active||opts.active()))draw(now);requestAnimationFrame(loop)})(0);
     /* turning rows by hand */
     var P=opts.play;
     if(P){
@@ -152,7 +152,7 @@ var Cube=(function(){
       function end(e){if(drag&&cv.hasPointerCapture&&cv.hasPointerCapture(e.pointerId))cv.releasePointerCapture(e.pointerId);drag=null;cv.style.cursor='grab'}
       cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
     }
-    return {show:function(st){for(var i=0;i<27;i++){cubies[i].position.copy(st[i].p);cubies[i].quaternion.copy(st[i].q)}},pop:function(){pop=performance.now()},set:function(o){for(var k in o)ex[k]=o[k]},get:function(){var o={};for(var k in ex)o[k]=ex[k];return o},resetView:function(){ux=0;uy=0}};
+    return {show:function(st){for(var i=0;i<27;i++){cubies[i].position.copy(st[i].p);cubies[i].quaternion.copy(st[i].q)}},pop:function(){pop=performance.now()},set:function(o){for(var k in o)ex[k]=o[k]},get:function(){var o={};for(var k in ex)o[k]=ex[k];return o},resetView:function(){ux=0;uy=0},parts:{scene:scene,root:root,cubies:cubies,tiles:tiles,cam:cam,geo:G2,face:FACE}};
   }
   return {solved:solved,apply:apply,snap:snap,inverse:inverse,rand:rand,note:note,sequence:sequence,at:at,view:view};
 })();
@@ -297,46 +297,88 @@ if(hero||heroSvg){
   if(solveCubeBtn)solveCubeBtn.addEventListener('click',heroSolve);
 }
 
-/* ---------- process cards: the hero's 3D cube, a little more solved at each stage ----------
-   Listen looks the scrambled cube over, Shape and Deliver solve part of it, Stay finishes it.
-   Each cube is built just before its card comes near, and plays its step once as the card arrives;
-   hovering a card plays it again. */
+/* ---------- process cards: one cube, four different things happening ----------
+   Listen opens the cube into an exploded view while rings pulse out from a glowing core: a look inside at how things work today.
+   Shape draws the plan as a wireframe, then builds the cube into it piece by piece, layer by layer, in order.
+   Deliver solves a scrambled cube in four steps while a weekly progress bar fills underneath.
+   Stay keeps the solved cube turning slowly while a year of small cubes orbits it, and a shine passes over it now and then.
+   Each loop starts when its card comes into view, and a cube stops drawing once the next card covers it. */
 (function(){
   var hosts=$$('.cardCube');if(!hosts.length)return;
   if(!Cube){hosts.forEach(function(h){h.classList.add('flat')});return}
-  /* the last turns to solve are bottom and middle rows only, so Shape shows the top layer solved and Deliver is one turn away */
-  var S=[{a:'y',l:-1,d:1},{a:'y',l:0,d:-1},{a:'y',l:-1,d:1}].concat(Cube.rand(11)),LEFT=[14,3,1,0];
-  function stateAt(n){var s=Cube.solved();S.slice(0,n).forEach(function(m){s=Cube.snap(Cube.apply(s,m,1))});return s}
-  function pop(host){
-    if(!G)return;var box=document.createElement('div');box.className='sparks';host.appendChild(box);
-    var cols=['#45D4FF','#DDABFF','#40FFC6','#2BB8FF','#D18CFF','#36EDB8'];
-    for(var i=0;i<16;i++){(function(i){var s=document.createElement('i');s.style.background=cols[i%cols.length];box.appendChild(s);
-      var a=Math.random()*Math.PI*2,d=110+Math.random()*120;
-      gsap.fromTo(s,{x:0,y:0,scale:.35+Math.random()*.4,rotation:0},{x:Math.cos(a)*d,y:Math.sin(a)*d*.85,rotation:(Math.random()-.5)*540,scale:0,duration:1+Math.random()*.5,ease:'power3.out',onComplete:function(){s.remove()}})})(i)}
-    setTimeout(function(){box.remove()},1800);
-  }
+  function cl(x){return x<0?0:x>1?1:x}
+  function seg(t,a,b){return cl((t-a)/(b-a))}
+  function eio(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+  function eback(x){var c=1.6;x-=1;return 1+(c+1)*x*x*x+c*x*x}
+  function scrambled(n){var s=Cube.solved();Cube.rand(n).forEach(function(m){s=Cube.snap(Cube.apply(s,m,1))});return s}
+
+  var MODES=[
+  /* Listen */
+  function(){var P,base,rings=[],core;
+    return {R:2.75,
+      init:function(v){P=v.parts;v.show(scrambled(16));base=P.cubies.map(function(c){return c.position.clone()});
+        for(var i=0;i<3;i++){var m=new THREE.Mesh(new THREE.RingGeometry(.93,1,96),new THREE.MeshBasicMaterial({color:0x2BB8FF,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));P.scene.add(m);rings.push(m)}
+        core=new THREE.Mesh(new THREE.SphereGeometry(.3,32,16),new THREE.MeshBasicMaterial({color:0x45D4FF}));P.root.add(core)},
+      tick:function(t){var T=t%8.4,e=eio(seg(T,.9,2.3))*(1-eio(seg(T,5.8,7.2)));
+        P.cubies.forEach(function(c,i){var b=base[i],k=1+.62*e,w=Math.sin(t*2.2+i*1.9)*.06*e;c.position.set(b.x*k,b.y*k+w,b.z*k);c.scale.setScalar(i===13?1-.9*e:1)});
+        P.root.scale.multiplyScalar(1-.2*e);P.root.rotation.y+=(Math.floor(t/8.4)+eio(seg(T,.9,7.2)))*Math.PI/2;
+        core.scale.setScalar(Math.max(.001,e*(1+.18*Math.sin(t*7))));
+        rings.forEach(function(m,k){var ph=((t-k*.6)%1.8+1.8)%1.8/1.8;m.position.copy(P.root.position);m.quaternion.copy(P.cam.quaternion);m.scale.setScalar(.4+ph*3.1);m.material.opacity=e*Math.pow(1-ph,1.3)*.85})}}},
+  /* Shape */
+  function(){var P,v0,base,order,mat,popped=false;
+    return {R:2.5,
+      init:function(v){v0=v;P=v.parts;v.show(Cube.solved());base=P.cubies.map(function(c){return c.position.clone()});
+        var eg=new THREE.EdgesGeometry(new THREE.BoxGeometry(.94,.94,.94)),wire=new THREE.Group();mat=new THREE.LineBasicMaterial({color:0x4A4FE6,transparent:true,opacity:0});
+        base.forEach(function(b){var l=new THREE.LineSegments(eg,mat);l.position.copy(b);wire.add(l)});P.root.add(wire);
+        order=base.map(function(b,i){return i}).sort(function(a,b){var A=base[a],B=base[b];return (A.y-B.y)||(A.z-B.z)||(A.x-B.x)});},
+      tick:function(t){var T=t%9.6;
+        mat.opacity=.6*(T<4.3?1-seg(T,3.7,4.3):seg(T,7,7.6))*seg(t,0,.6);
+        order.forEach(function(ci,k){var c=P.cubies[ci],b=base[ci],a=eback(seg(T,.7+k*.095,1.25+k*.095)),o=eio(seg(T,7.6+(26-k)*.045,8.1+(26-k)*.045));
+          c.scale.setScalar(Math.max(.001,Math.min(1.08,a)*(1-o)));c.position.set(b.x,b.y+(1-cl(a))*1.4,b.z)});
+        if(T>3.5&&T<3.7&&!popped){popped=true;v0.pop()}if(T<1)popped=false}}},
+  /* Deliver */
+  function(host){var P,v0,seq=Cube.sequence(Cube.rand(12)),fills=[],popped=false;
+    var bar=document.createElement('div');bar.className='wkBar';bar.setAttribute('aria-hidden','true');
+    bar.innerHTML=[1,2,3,4].map(function(n){return '<span><i><b></b></i>Week '+n+'</span>'}).join('');host.appendChild(bar);
+    fills=[].slice.call(bar.querySelectorAll('b'));
+    return {R:2.6,
+      init:function(v){v0=v;P=v.parts;v.show(seq.states[0])},
+      tick:function(t){var T=t%11.2,p=0,f=[0,0,0,0],spin=0;
+        if(T>=.6&&T<7){var u=T-.6,k=Math.min(3,Math.floor(u/1.6)),q=cl((u-k*1.6)/1.1);p=(k*3+q*3)/12;for(var j=0;j<4;j++)f[j]=j<k?1:(j===k?q:0)}
+        else if(T>=7&&T<9.6){p=1;f=[1,1,1,1]}
+        else if(T>=9.6){var r=eio(seg(T,9.6,10.8));p=1-r;spin=r*Math.PI*2;f=[1-r,1-r,1-r,1-r]}
+        v0.show(Cube.at(seq,p));P.root.rotation.y+=spin;
+        fills.forEach(function(b,j){b.style.transform='scaleX('+f[j]+')'});
+        if(T>=7&&T<7.3&&!popped){popped=true;v0.pop()}if(T<1)popped=false}}},
+  /* Stay */
+  function(){var P,v0,orbit,sats=[],shone=-1,W=new THREE.Color(0xffffff),wp=new THREE.Vector3(),D=new THREE.Vector3(1,-1,1).normalize();
+    return {R:3.15,uniqueTiles:true,
+      init:function(v){v0=v;P=v.parts;v.show(Cube.solved());
+        orbit=new THREE.Group();orbit.rotation.set(.38,0,-.16);P.scene.add(orbit);
+        var pts=[];for(var i=0;i<=160;i++){var a=i/160*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*2.4,0,Math.sin(a)*2.4))}
+        orbit.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.38})));
+        var cols=[0x45D4FF,0xDDABFF,0x40FFC6];
+        for(var i=0;i<12;i++){var m=new THREE.Mesh(P.geo.body,new THREE.MeshStandardMaterial({color:cols[i%3],roughness:.35,emissive:cols[i%3],emissiveIntensity:.2}));m.scale.setScalar(.25);orbit.add(m);sats.push(m)}},
+      tick:function(t){P.root.rotation.y+=t*.2;
+        sats.forEach(function(m,i){var a=-t*.55+i/12*Math.PI*2;m.position.set(Math.cos(a)*2.4,Math.sin(t*1.4+i)*.06,Math.sin(a)*2.4);m.rotation.set(t*.9+i,t*.7+i*2,0)});
+        var T=t%6.5,w=seg(T,.3,1.9),on=w>0&&w<1;
+        if(on||shone>0){P.root.updateMatrixWorld();var front=-2.6+w*5.2;
+          P.tiles.forEach(function(m){var I=0;if(on){m.getWorldPosition(wp);var d=wp.dot(D)-front;I=Math.exp(-d*d/.22)}
+            m.material.emissive.setHex(P.face[m.userData.k]).multiplyScalar(.07*(1-I)).add(W.clone().multiplyScalar(.7*I));m.material.emissiveIntensity=1});
+          shone=on?1:0}
+        if(T>1.1&&T<1.25&&!sats.popped){sats.popped=true;v0.pop()}if(T<.5)sats.popped=false}}}
+  ];
+
+  var cards=$$('#stack .card');
   hosts.forEach(function(host){
-    var k=+host.getAttribute('data-stage')||0,v=null,busy=false,played=false,card=host.closest('.card');
-    var startN=k===0?LEFT[0]:LEFT[k-1],endN=LEFT[k];
-    function build(){if(v)return true;v=Cube.view(host,{R:2.45});if(!v){host.classList.add('flat');return false}
-      host.classList.add('live');v.show(stateAt(startN));v.set({idle:0});return true}
-    function play(){
-      if(!build()||busy)return;busy=true;v.set({idle:0});
-      var run;
-      if(k===0){v.show(stateAt(LEFT[0]));v.set({spin:0,lift:0});
-        run=animProps(v,{lift:.25,scale:.94},300,easeIO)
-          .then(function(){return animProps(v,{spin:Math.PI*2},1800,easeIO)})
-          .then(function(){v.set({spin:0});return animProps(v,{lift:0,scale:1},420,easeIO)})}
-      else{var st=stateAt(startN);v.show(st);v.set({spin:0});
-        var mv=Cube.inverse(S.slice(endN,startN));
-        run=playMoves(v,st,mv,Math.min(620,2600/mv.length),mv.length>2?[0,Math.PI*2]:null).then(function(){v.set({spin:0});if(k===3){v.pop();pop(host)}})}
-      run.then(function(){busy=false;played=true;v.set({idle:1})});
-    }
+    var k=+host.getAttribute('data-stage')||0,card=host.closest('.card'),next=cards[cards.indexOf(card)+1],mode=MODES[k](host),t0=0,v=null,ready=false;
+    function active(){if(!next)return true;var a=card.getBoundingClientRect(),b=next.getBoundingClientRect();return b.top>a.top+a.height*.5}
+    function build(){if(v)return;v=Cube.view(host,{R:mode.R,uniqueTiles:mode.uniqueTiles,active:active,tick:function(now){if(!ready)return;mode.tick(t0?(now-t0)/1000:0)}});
+      if(!v){host.classList.add('flat');return}host.classList.add('live');mode.init(v);ready=true;v.set({idle:1})}
     if(window.IntersectionObserver){
       new IntersectionObserver(function(es){if(es[0].isIntersecting)build()},{rootMargin:'600px 0px'}).observe(host);
-      var io=new IntersectionObserver(function(es){if(es[0].isIntersecting&&!played){io.disconnect();play()}},{threshold:.6});io.observe(host);
-    }else{build();play()}
-    if(card&&FINE)card.addEventListener('pointerenter',function(){if(played)play()});
+      var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();build();t0=performance.now()}},{threshold:.3});io.observe(host);
+    }else{build();t0=performance.now()}
   });
 })();
 

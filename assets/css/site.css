@@ -520,3 +520,10 @@ fieldset.field{border:0;margin:0;padding:0}
 .card:nth-child(3) .cardCube::before,.card:nth-child(4) .cardCube::before{content:"";position:absolute;inset:6%;border-radius:50%;background:radial-gradient(closest-side,rgba(69,212,255,.22),rgba(69,212,255,0));pointer-events:none}
 .card:nth-child(4) .cardCube::before{background:radial-gradient(closest-side,rgba(255,255,255,.26),rgba(255,255,255,0))}
 @media (max-width:700px){.cardCube{width:min(70vw,280px);justify-self:center;margin-top:-8px}}
+
+/* Deliver: the weekly progress bar under the cube */
+.wkBar{position:absolute;left:10%;right:10%;bottom:1%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;font:600 12px/1 var(--f-body);color:rgba(255,255,255,.72);letter-spacing:.01em}
+.wkBar span{display:grid;gap:8px;white-space:nowrap}
+.wkBar i{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.16);overflow:hidden}
+.wkBar b{display:block;height:100%;background:#40FFC6;transform:scaleX(0);transform-origin:0 50%}
+.cardCube.flat .wkBar{display:none}
