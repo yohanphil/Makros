@@ -18,11 +18,13 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" as="script">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="assets/css/site.css?v=7">
-<link rel="stylesheet" href="assets/css/motion.css?v=7">
+<link rel="stylesheet" href="assets/css/site.css?v=8">
+<link rel="stylesheet" href="assets/css/motion.css?v=8">
 <script>try{if(sessionStorage.getItem('mkw')){document.documentElement.classList.add('arriving');sessionStorage.removeItem('mkw')}}catch(e){}</script>
 </head>
 <body data-page="contact">
@@ -63,7 +65,7 @@
 <main>
 <section class="wrap pHero" aria-labelledby="h-c" style="padding-bottom:56px">
 <div><h1 class="l split" id="h-c">Let's look at your bigger picture.</h1><p class="mid ink2 r">No question is too big or too small. Tell us what you are working towards and a director will reply personally.</p></div>
-<div class="r" style="display:flex;justify-content:center"><svg aria-hidden="true" style="width:clamp(140px,18vw,260px);height:clamp(158px,20.3vw,294px)"><use href="#mkS"/></svg></div>
+<div class="cWrap r"><div class="cubeHost" id="contactCube" role="img" aria-label="The Makros cube. It floats, scrambles and solves itself, and you can drag its rows to play"><div class="cubeLoad" aria-hidden="true"><div class="clFace"><b style="--z:5"></b><b style="--z:10"></b><b style="--z:15"></b><b style="--z:20"></b><i class="o0"></i><i class="o1"></i><i class="o2"></i><i class="o7"></i><i class="o8"></i><i class="o3"></i><i class="o6"></i><i class="o5"></i><i class="o4"></i></div><span class="clShade"></span></div><svg class="fallback" aria-hidden="true"><use href="#mkS"/></svg></div><p class="cubeHint">Drag any row to turn it.</p></div>
 </section>
 <section style="padding-bottom:var(--sec)">
 <div class="wrap cgrid">
@@ -103,7 +105,8 @@
 <div class="pc r"><h3>General enquiries</h3>
 <div class="copyLine"><a href="tel:+94773000904">+94 77 300 0904</a><button class="copyBtn" type="button" data-copy="+94 77 300 0904">Copy</button></div>
 <div class="copyLine"><a href="mailto:hello@makrossolutions.com">hello@makrossolutions.com</a><button class="copyBtn" type="button" data-copy="hello@makrossolutions.com">Copy</button></div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn quiet" href="https://wa.link/lm68xa" target="_blank" rel="noopener">WhatsApp</a><a class="btn quiet" href="https://www.linkedin.com/company/makros-solutions-pvt-limited/" target="_blank" rel="noopener">LinkedIn</a></div></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn quiet" href="https://wa.link/lm68xa" target="_blank" rel="noopener">WhatsApp</a></div></div>
+<div class="pc r followCard"><h3>Follow Makros</h3><span class="ink2" style="font-size:15px">See what we are working on.</span><div class="socRow big"><a class="soc" href="https://www.instagram.com/makros.solutions/" target="_blank" rel="noopener" aria-label="Makros on Instagram" title="Instagram" style="--c:#45D4FF"><span class="socBox"><span class="socF"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.25" fill="currentColor"/></svg></span><span class="socT"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.25" fill="currentColor"/></svg></span></span></a><a class="soc" href="https://www.facebook.com/makrossolutions" target="_blank" rel="noopener" aria-label="Makros on Facebook" title="Facebook" style="--c:#DDABFF"><span class="socBox"><span class="socF"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.6 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.9v3h2.6V21z"/></svg></span><span class="socT"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.6 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.9v3h2.6V21z"/></svg></span></span></a><a class="soc" href="https://www.linkedin.com/company/makros-solutions-pvt-limited/" target="_blank" rel="noopener" aria-label="Makros on LinkedIn" title="LinkedIn" style="--c:#40FFC6"><span class="socBox"><span class="socF"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.9 8.7H3.8V20h3.1zM5.35 3.6a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6zM20.2 13.4c0-3.1-1.7-4.9-4.3-4.9-1.6 0-2.6.9-3 1.6V8.7H9.8V20h3.1v-5.9c0-1.5.4-2.9 2.2-2.9 1.8 0 1.9 1.7 1.9 3V20h3.2z"/></svg></span><span class="socT"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.9 8.7H3.8V20h3.1zM5.35 3.6a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6zM20.2 13.4c0-3.1-1.7-4.9-4.3-4.9-1.6 0-2.6.9-3 1.6V8.7H9.8V20h3.1v-5.9c0-1.5.4-2.9 2.2-2.9 1.8 0 1.9 1.7 1.9 3V20h3.2z"/></svg></span></span></a></div></div>
 </div>
 </div>
 </section>
@@ -114,7 +117,7 @@
 <div class="footTop">
 <div><h2>Complexity, solved.</h2><div class="tileLine"><i style="background:#3BBDFF"></i><i style="background:#9A8CFA"></i><i style="background:#3FDDB5"></i></div></div>
 <div class="col"><p>Explore</p><a href="technology.html">Technology</a><a href="operations.html">Operations</a><a href="studio.html">Studio</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
-<div class="col"><p>Talk to us</p><a href="tel:+94773000904">+94 77 300 0904</a><a href="mailto:hello@makrossolutions.com">hello@makrossolutions.com</a><a href="https://www.linkedin.com/company/makros-solutions-pvt-limited/" target="_blank" rel="noopener">LinkedIn</a></div>
+<div class="col"><p>Talk to us</p><a href="tel:+94773000904">+94 77 300 0904</a><a href="mailto:hello@makrossolutions.com">hello@makrossolutions.com</a><p class="followP">Follow us</p><div class="socRow"><a class="soc" href="https://www.instagram.com/makros.solutions/" target="_blank" rel="noopener" aria-label="Makros on Instagram" title="Instagram" style="--c:#45D4FF"><span class="socBox"><span class="socF"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.25" fill="currentColor"/></svg></span><span class="socT"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.25" fill="currentColor"/></svg></span></span></a><a class="soc" href="https://www.facebook.com/makrossolutions" target="_blank" rel="noopener" aria-label="Makros on Facebook" title="Facebook" style="--c:#DDABFF"><span class="socBox"><span class="socF"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.6 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.9v3h2.6V21z"/></svg></span><span class="socT"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.6 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.9v3h2.6V21z"/></svg></span></span></a><a class="soc" href="https://www.linkedin.com/company/makros-solutions-pvt-limited/" target="_blank" rel="noopener" aria-label="Makros on LinkedIn" title="LinkedIn" style="--c:#40FFC6"><span class="socBox"><span class="socF"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.9 8.7H3.8V20h3.1zM5.35 3.6a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6zM20.2 13.4c0-3.1-1.7-4.9-4.3-4.9-1.6 0-2.6.9-3 1.6V8.7H9.8V20h3.1v-5.9c0-1.5.4-2.9 2.2-2.9 1.8 0 1.9 1.7 1.9 3V20h3.2z"/></svg></span><span class="socT"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.9 8.7H3.8V20h3.1zM5.35 3.6a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6zM20.2 13.4c0-3.1-1.7-4.9-4.3-4.9-1.6 0-2.6.9-3 1.6V8.7H9.8V20h3.1v-5.9c0-1.5.4-2.9 2.2-2.9 1.8 0 1.9 1.7 1.9 3V20h3.2z"/></svg></span></span></a></div></div>
 </div>
 <div class="tileWall" id="tileWall" role="img" aria-label="A wall of Makros tiles that scrambles, then sorts itself to spell MAKROS"></div>
 <div class="fine"><span>© 2026 Makros Solutions (Pvt) Ltd</span><span>Website design preview</span></div>
@@ -125,6 +128,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="assets/js/site.js?v=7"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/js/site.js?v=8"></script>
 </body>
 </html>

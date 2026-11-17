@@ -546,3 +546,52 @@ fieldset.field{border:0;margin:0;padding:0}
 .yrTag{position:absolute;left:4%;top:4%;display:flex;align-items:baseline;gap:7px;font:600 13px/1 var(--f-body);color:rgba(255,255,255,.82);letter-spacing:.02em;white-space:nowrap}
 .yrTag b{display:inline-block;font:600 24px/1 var(--f-display);color:#fff;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .yrTag.tick b{transform:translateY(-5px) scale(1.18)}
+
+/* ---------- social links: three cube stickers in the brand colours; on hover each one turns like a cube row
+   and shows its next face, dark with the icon in colour ---------- */
+.socRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:2px}
+.soc{--s:48px;display:block;width:var(--s);height:var(--s);perspective:420px;border-radius:24%;text-decoration:none}
+.socBox{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transform:translateZ(calc(var(--s) / -2));transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.socF,.socT{position:absolute;inset:0;display:grid;place-items:center;border-radius:24%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.socF{background:var(--c);color:#0B1030;transform:translateZ(calc(var(--s) / 2));box-shadow:inset 0 -4px 0 rgba(11,16,48,.16),inset 0 4px 0 rgba(255,255,255,.3)}
+.socT{background:#0B1030;color:var(--c);transform:rotateX(90deg) translateZ(calc(var(--s) / 2));box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.18)}
+.soc svg{width:46%;height:46%;display:block}
+.soc:hover .socBox,.soc:focus-visible .socBox{transform:translateZ(calc(var(--s) / -2)) rotateX(-90deg)}
+.soc:focus-visible{outline:3px solid #45D4FF;outline-offset:4px}
+.footTop .col .followP{margin-top:16px}
+.socRow.big{gap:14px;margin-top:14px}
+.socRow.big .soc{--s:60px}
+@media (prefers-reduced-motion:reduce){.socBox{transition:none}}
+
+/* ---------- the quick menu: once the header has gone, a pill with the cube mark, the pages and the conversation
+   button floats at the top. It turns light over dark sections and dark over light ones, the mark turns as you
+   scroll, and a line along its foot shows how far down the page you are. Wide screens only; phones keep their menu. ---------- */
+.dock{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;z-index:56;display:flex;align-items:center;gap:4px;height:58px;padding:0 7px 0 9px;border-radius:999px;
+  background:rgba(11,16,48,.88);color:#fff;box-shadow:0 18px 40px -18px rgba(11,16,48,.55),inset 0 0 0 1px rgba(255,255,255,.1);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
+  transform:translate(-50%,-140%);opacity:0;visibility:hidden;overflow:hidden;
+  transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .35s,visibility 0s linear .55s,background-color .35s,color .35s,box-shadow .35s}
+.dock.show{transform:translate(-50%,0);opacity:1;visibility:visible;transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .35s,visibility 0s,background-color .35s,color .35s,box-shadow .35s}
+.dock.light{background:rgba(255,255,255,.9);color:#0B1030;box-shadow:0 18px 40px -18px rgba(11,16,48,.4),inset 0 0 0 1px rgba(11,16,48,.08)}
+.dockMark{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;margin-right:6px}
+.dockMark img{width:30px;height:28px;display:block;will-change:transform}
+.dock.show .dockMark img{filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
+.dockL{position:relative;padding:10px 13px;border-radius:999px;font-size:15px;font-weight:500;color:inherit;opacity:.78;text-decoration:none;white-space:nowrap;transition:opacity .2s,background-color .2s}
+.dockL:hover{opacity:1;background:rgba(255,255,255,.1)}
+.dock.light .dockL:hover{background:rgba(11,16,48,.06)}
+.dockL[aria-current="page"]{opacity:1}
+.dockL[aria-current="page"]::after{content:"";position:absolute;left:50%;bottom:3px;width:6px;height:6px;margin-left:-3px;border-radius:2px;background:#45D4FF}
+.dock.light .dockL[aria-current="page"]::after{background:#4A4FE6}
+.dockCta{margin-left:8px;display:inline-flex;align-items:center;height:44px;padding:0 20px;border-radius:999px;background:#fff;color:#0B1030;font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background-color .2s,color .2s,transform .2s}
+.dock.light .dockCta{background:#0B1030;color:#fff}
+.dockCta:hover{transform:translateY(-1px);background:#45D4FF;color:#0B1030}
+.dock.light .dockCta:hover{background:#4A4FE6;color:#fff}
+.dockProg{position:absolute;left:22px;right:22px;bottom:0;height:3px;border-radius:2px;background:linear-gradient(90deg,#45D4FF,#DDABFF,#40FFC6);transform:scaleX(var(--p,0));transform-origin:0 50%}
+.dock a:focus-visible{outline:3px solid #45D4FF;outline-offset:2px}
+@media (max-width:900px){.dock{display:none}}
+
+/* ---------- contact: the home page cube beside the heading ---------- */
+.cWrap{position:relative;width:min(100%,clamp(300px,34vw,480px));aspect-ratio:1;justify-self:center}
+.cWrap .cubeHint{bottom:0}
+.cWrap.playing .cubeHint,.cWrap:hover .cubeHint{opacity:1;transform:translate(-50%,0)}
+@media (max-width:900px){.cWrap{width:min(88vw,380px);margin-top:8px}}

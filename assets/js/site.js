@@ -19,10 +19,31 @@ if(window.Lenis&&!RMQ){
 }
 function toTop(){if(lenis)lenis.scrollTo(0,{immediate:true,force:true});else window.scrollTo(0,0)}
 
-/* ---------- header: hide on the way down, show on the way up ---------- */
-var bar=$('#bar'),lastY=0;
-function onScroll(){var y=window.scrollY;bar.classList.toggle('solid',y>10);if(y>lastY+4&&y>220&&!navOpen)bar.classList.add('hide');else if(y<lastY-4)bar.classList.remove('hide');lastY=y}
-window.addEventListener('scroll',onScroll,{passive:true});
+/* ---------- header: hide on the way down, show on the way up ----------
+   On wide screens a quick menu takes over once the header has gone: a pill with the cube mark, the pages and the
+   conversation button. It stays while you scroll, turns light over dark sections and dark over light ones, the mark
+   turns with the scroll and a line along its foot shows how far down the page you are. Phones keep their own menu. */
+var bar=$('#bar'),lastY=0,dock=null,WIDE=window.matchMedia?window.matchMedia('(min-width:901px)'):{matches:true};
+(function(){
+  var links=$$('#nav .nl'),cta=$('#nav .btn');if(!links.length)return;
+  dock=document.createElement('nav');dock.className='dock';dock.setAttribute('aria-label','Quick menu');
+  dock.innerHTML='<a class="dockMark" href="index.html" aria-label="Makros home"><img src="assets/img/mks-logo.svg" alt="" width="30" height="28"></a>'+
+    links.map(function(l){var t=(l.querySelector('[data-t]')||l).getAttribute('data-t')||l.textContent.trim();return '<a class="dockL" href="'+l.getAttribute('href')+'"'+(l.getAttribute('aria-current')?' aria-current="page"':'')+'>'+t+'</a>'}).join('')+
+    '<a class="dockCta" href="'+(cta?cta.getAttribute('href'):'contact.html')+'">'+(cta?cta.textContent.trim():'Start a conversation')+'</a><i class="dockProg" aria-hidden="true"></i>';
+  document.body.appendChild(dock);
+})();
+var dockMark=dock&&dock.querySelector('.dockMark img'),dockTone=-1,dockRaf=0;
+/* which colour is behind the pill: walk up from the element under it to the first solid background */
+function toneAt(x,y){var el=document.elementFromPoint(x,y);while(el&&el!==document.documentElement){var m=getComputedStyle(el).backgroundColor.match(/[\d.]+/g);if(m&&(m.length<4||+m[3]>.5))return (.299*m[0]+.587*m[1]+.114*m[2])/255;el=el.parentElement}return 1}
+function dockUpdate(){dockRaf=0;if(!dock||!dock.classList.contains('show'))return;
+  var y=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight,p=h>0?Math.min(1,y/h):0,b=dock.getBoundingClientRect();
+  dock.style.setProperty('--p',p.toFixed(4));if(dockMark)dockMark.style.transform='rotate('+(p*720).toFixed(1)+'deg)';
+  var dark=toneAt(b.left+b.width/2,b.bottom+6)<.5;if(dark!==dockTone){dockTone=dark;dock.classList.toggle('light',dark)}}
+function onScroll(){var y=window.scrollY;bar.classList.toggle('solid',y>10);
+  if(dock&&WIDE.matches){var on=y>260&&!navOpen;dock.classList.toggle('show',on);bar.classList.toggle('hide',on);lastY=y;if(on&&!dockRaf)dockRaf=requestAnimationFrame(dockUpdate);return}
+  if(dock)dock.classList.remove('show');
+  if(y>lastY+4&&y>220&&!navOpen)bar.classList.add('hide');else if(y<lastY-4)bar.classList.remove('hide');lastY=y}
+window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);
 /* ---------- back to top: hidden until the visitor scrolls down ---------- */
 var tt=$('#toTop');
 if(tt){
@@ -296,6 +317,48 @@ if(hero||heroSvg){
   if(replayBtn)replayBtn.addEventListener('click',heroScramble);
   if(solveCubeBtn)solveCubeBtn.addEventListener('click',heroSolve);
 }
+
+/* ---------- contact: the home page cube beside the heading ----------
+   It flies in and solves itself, floats, and every few seconds scrambles and solves again. Visitors can drag its rows;
+   if they leave it scrambled it waits a little, then solves their moves back. */
+(function(){
+  var host=$('#contactCube');if(!host)return;
+  var wrap=host.parentElement,load=host.querySelector('.cubeLoad'),hint=wrap.querySelector('.cubeHint');
+  var st=Cube?Cube.solved():null,busy=true,hist=[],mine=false,hov=false,T=0,shown=false;
+  var v=Cube?Cube.view(host,{tilt:wrap,play:{
+    canTurn:function(){return !busy},
+    turn:function(m){turn(m)},
+    touched:function(){clearTimeout(T);if(v)v.set({idle:0})},
+    hover:function(on){hov=on;wrap.classList.toggle('playing',on||mine);if(on){clearTimeout(T);v.set({idle:0})}else if(!busy){v.set({idle:1});later()}}
+  }}):null;
+  if(load){if(v){load.classList.add('out');setTimeout(function(){load.remove()},700)}else load.remove()}
+  if(!v){host.classList.add('flat');if(hint)hint.hidden=true;return}
+  host.classList.add('live');
+  function say(t){if(hint)hint.textContent=t}
+  function settle(byHand){v.pop();v.set({spin:v.get().spin%(Math.PI*2),idle:hov?0:1});busy=false;hist=[];mine=false;wrap.classList.toggle('playing',hov);
+    say(byHand?'You solved it. Nicely done.':'Drag any row to turn it.');later()}
+  function later(){clearTimeout(T);T=setTimeout(function go(){if(busy)return;if(hov||document.hidden||!shown){T=setTimeout(go,1500);return}
+    if(mine){solveBack();return}show()},mine?8000:7000)}
+  function show(){busy=true;v.set({idle:0});var mv=Cube.rand(10);
+    animProps(v,{lift:.3,scale:.92},260,easeIO)
+    .then(function(){return playMoves(v,st,mv,90,[0,Math.PI])})
+    .then(function(s){st=s;return wait(240)})
+    .then(function(){return Promise.all([playMoves(v,st,Cube.inverse(mv),180,[Math.PI,Math.PI*3]),animProps(v,{lift:0,scale:1},520,easeIO)])})
+    .then(function(r){st=r[0];settle()})}
+  function solveBack(){var mv=tidy(Cube.inverse(hist));if(!mv.length){settle();return}busy=true;say('Solving '+mv.length+(mv.length===1?' move.':' moves.'));
+    playMoves(v,st,mv,Math.max(80,Math.min(200,3600/mv.length)),[0,Math.PI*2]).then(function(s){st=s;v.set({spin:0});settle()})}
+  function turn(m){if(busy)return;clearTimeout(T);mine=true;busy=true;wrap.classList.add('playing');v.set({idle:0});
+    playMoves(v,st,[m],230).then(function(s){st=s;hist.push(m);busy=false;
+      if(isSolved(st)){settle(true);return}
+      say(hist.length+(hist.length===1?' turn.':' turns.')+' Leave it and it solves itself.');later()})}
+  if(window.IntersectionObserver)new IntersectionObserver(function(es){shown=es[0].isIntersecting}).observe(host);else shown=true;
+  /* the entrance: scrambled, it flies in and solves itself */
+  var scr=Cube.rand(12);st=scrambledBy(scr);v.show(st);v.set({scale:.3,spin:-Math.PI*1.25,lift:1.1,idle:0});
+  wait(250).then(function(){return animProps(v,{scale:1,spin:0,lift:0},1000,easeOut)})
+  .then(function(){return wait(80)})
+  .then(function(){return playMoves(v,st,Cube.inverse(scr),190,[0,Math.PI*2])})
+  .then(function(s){st=s;settle()});
+})();
 
 /* ---------- process cards: one cube, four different things happening ----------
    Listen opens the cube into an exploded view while rings pulse out from a glowing core: a look inside at how things work today.
