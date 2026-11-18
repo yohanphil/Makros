@@ -633,65 +633,38 @@ function firstName(n){return n.trim().split(/\s+/)[0]}
       try{sessionStorage.setItem('mkPop','1')}catch(e){}})});
 })();
 
-/* the pop up: it opens by itself once a visit, after the visitor has scrolled part of the way down (never on Contact,
-   never after a lead), and the hanging Stuck? button opens it any time */
-var leadPop=null;
+/* the nudge: one small card a minute into the visit, once a visit (never on Contact, never after a lead). It does not
+   ask for details itself; it points to the contact form, with WhatsApp as the quick alternative. */
+var FORM_URL='contact.html#cform';
 (function(){
   if(/contact\.html$/.test(location.pathname)||!$('main'))return;
-  var seen=false;try{seen=sessionStorage.getItem('mkPop')||localStorage.getItem('mkLead')}catch(e){}
-  var order=[0,1,2,7,8,3,6,5,4],tiles=order.map(function(o){return '<i class="o'+o+'"></i>'}).join('');
-  var el=document.createElement('div');el.className='lp';el.hidden=true;
-  el.innerHTML='<div class="lpBack" data-close></div>'+
-   '<div class="lpCard" role="dialog" aria-modal="true" aria-labelledby="lpH" aria-describedby="lpSub">'+
-   '<button class="lpX" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>'+
-   '<div class="lpArt" aria-hidden="true"><div class="clFace"><b style="--z:5"></b><b style="--z:10"></b><b style="--z:15"></b><b style="--z:20"></b>'+tiles+'</div><span class="clShade"></span><p class="lpTag">Complexity, solved.</p></div>'+
-   '<div class="lpBody">'+
-   '<h2 id="lpH">What\'s tangled in your business?</h2><p class="lpSub" id="lpSub">Leave your details. A director will get back to you personally.</p>'+
-   '<form class="lpForm" novalidate>'+
-   '<div class="lpF"><label for="lp-name">Your name</label><input id="lp-name" autocomplete="name"></div>'+
-   '<div class="lpRow"><div class="lpF"><label for="lp-email">Email</label><input id="lp-email" type="email" autocomplete="email"></div>'+
-   '<div class="lpF"><label for="lp-phone">Phone <span>(optional)</span></label><input id="lp-phone" type="tel" autocomplete="tel"></div></div>'+
-   '<fieldset class="lpNeed"><legend>Where can we help?</legend><div class="need">'+['Technology','Operations','Studio','Not sure yet'].map(function(t){return '<label><input type="checkbox" value="'+t+'"><span>'+t+'</span></label>'}).join('')+'</div></fieldset>'+
-   '<input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">'+
-   '<p class="lpErr" role="alert"></p>'+
-   '<button class="btn mag" type="submit">Talk to a director</button>'+
-   '<p class="lpNote">We only use your details to get back to you. <button type="button" class="lpLater" data-close>Not now</button></p>'+
-   '</form>'+
-   '<div class="lpDone" hidden><h2>Thank you, <span></span>.</h2><p></p><button class="btn quiet" type="button" data-close>Back to the page</button></div>'+
-   '</div></div>';
+  var seen=false;try{seen=sessionStorage.getItem('mkNudge')||localStorage.getItem('mkLead')}catch(e){}
+  if(seen)return;
+  var el=document.createElement('div');el.className='nd';el.hidden=true;el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-labelledby','nd-h');
+  el.innerHTML='<div class="ndCard"><button class="ndX" type="button" aria-label="Close" data-close><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>'+
+    '<img class="ndMark" src="assets/img/mks-logo.svg" alt="" width="56" height="53">'+
+    '<h2 id="nd-h">Something tangled in your business?</h2>'+
+    '<p>Tell us about it in a few lines. A director will get back to you personally.</p>'+
+    '<div class="ndActs"><a class="btn" href="'+FORM_URL+'">Fill in the form</a><a class="btn quiet" href="https://wa.link/lm68xa" target="_blank" rel="noopener">WhatsApp us instead</a></div>'+
+    '<button class="ndLater" type="button" data-close>Maybe later</button></div>';
   document.body.appendChild(el);
-  var card=el.querySelector('.lpCard'),form=el.querySelector('.lpForm'),err=el.querySelector('.lpErr'),back=null,t0=Date.now(),opened=false;
-  function focusables(){return $$('button:not([disabled]),input:not(.hp),a[href]',card).filter(function(x){return x.offsetParent!==null})}
-  var src='Pop up';
-  function open(from){if(el.classList.contains('open'))return;opened=true;src=from||'Pop up';try{sessionStorage.setItem('mkPop','1')}catch(e){}
-    if(card.classList.contains('solved')){card.classList.remove('solved');form.reset();form.hidden=false;el.querySelector('.lpDone').hidden=true;var sb=form.querySelector('[type=submit]');sb.disabled=false;sb.textContent='Talk to a director'}
+  var back=null;
+  function close(){el.classList.remove('open');if(lenis)lenis.start();setTimeout(function(){el.hidden=true},400);if(back&&back.focus)back.focus({preventScroll:true})}
+  el.addEventListener('click',function(e){if(e.target===el||e.target.closest('[data-close]'))close()});
+  el.addEventListener('keydown',function(e){if(e.key==='Escape')close();
+    if(e.key==='Tab'){var f=$$('a,button',el),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+  setTimeout(function show(){
+    if(document.hidden||navOpen||document.querySelector('input:focus,textarea:focus')){setTimeout(show,5000);return}
+    try{sessionStorage.setItem('mkNudge','1')}catch(e){}
     back=document.activeElement;el.hidden=false;void el.offsetWidth;el.classList.add('open');if(lenis)lenis.stop();
-    setTimeout(function(){var f=$('#lp-name');if(f)f.focus({preventScroll:true})},420)}
-  function close(){el.classList.remove('open');if(lenis)lenis.start();setTimeout(function(){el.hidden=true},450);if(back&&back.focus)back.focus({preventScroll:true})}
-  el.addEventListener('click',function(e){if(e.target.closest('[data-close]'))close()});
-  el.addEventListener('keydown',function(e){if(e.key==='Escape'){close();return}
-    if(e.key==='Tab'){var f=focusables(),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
-  form.addEventListener('submit',function(e){e.preventDefault();
-    var n=$('#lp-name').value.trim(),em=$('#lp-email').value.trim(),ph=$('#lp-phone').value.trim(),ok=EMAIL_RE.test(em);
-    $('#lp-name').setAttribute('aria-invalid',String(!n));$('#lp-email').setAttribute('aria-invalid',String(!ok));
-    if(!n||!ok){err.textContent=!n?'Please tell us your name.':'Enter an email like name@company.com so we can reply.';(n?$('#lp-email'):$('#lp-name')).focus();return}
-    err.textContent='';var b=form.querySelector('[type=submit]');b.disabled=true;b.textContent='Sending';
-    var need=$$('.lpNeed input:checked',form).map(function(c){return c.value}).join(', ');
-    sendLead({Name:n,Email:em,Phone:ph,Interested_in:need,Source:src,_honey:form.querySelector('.hp').value}).then(function(how){
-      card.classList.add('solved');form.hidden=true;var d=el.querySelector('.lpDone');d.hidden=false;d.querySelector('span').textContent=firstName(n);
-      d.querySelector('p').textContent=how==='sent'?'Your details are with the Makros directors. One of us will be in touch soon.':'Your email app is open with your details ready. Press send there and it reaches the directors.';
-      d.querySelector('button').focus({preventScroll:true})})});
-  function check(){if(opened)return;var h=document.documentElement.scrollHeight-innerHeight,y=window.scrollY;
-    if(Date.now()-t0<5000||y<Math.min(h*.35,innerHeight*1.5)||navOpen||document.querySelector('input:focus,textarea:focus'))return;
-    window.removeEventListener('scroll',check);open()}
-  leadPop={open:open};
-  if(!seen)window.addEventListener('scroll',check,{passive:true});
+    setTimeout(function(){var a=el.querySelector('.ndActs .btn');if(a)a.focus({preventScroll:true})},380);
+  },60000);
 })();
 
 /* the hanging button: a tag on a string at the top right that turns between Stuck? and Need to speak? like a cube face,
-   swings when the page scrolls and now and then on its own, and opens the pop up. On phones it sits at the bottom left. */
+   swings when the page scrolls and now and then on its own, and takes people to the contact form. On phones it sits at the bottom left. */
 (function(){
-  if(!leadPop)return;
+  if(/contact\.html$/.test(location.pathname)||!$('main'))return;
   var b=document.createElement('button');b.type='button';b.className='hang';b.setAttribute('aria-label','Stuck? Need to speak? Talk to a director');
   b.innerHTML='<span class="hgSw" aria-hidden="true"><span class="hgStr"></span><span class="hgTag"><span class="hgBox">'+
     '<span class="hgF"><img src="assets/img/mks-logo.svg" alt="" width="20" height="19">Stuck?</span><span class="hgT">Need to speak?</span></span></span></span>';
@@ -707,7 +680,7 @@ var leadPop=null;
   setInterval(function(){if(!document.hidden&&!b.matches(':hover'))box.classList.toggle('flip')},3400);
   setInterval(function(){if(!document.hidden)kick(1.1)},9000);
   b.addEventListener('pointerenter',function(){box.classList.add('flip');kick(.8)});
-  b.addEventListener('click',function(){leadPop.open('Stuck? button')});
+  b.addEventListener('click',function(){location.href=FORM_URL});
 })();
 
 /* ---------- contact ---------- */
