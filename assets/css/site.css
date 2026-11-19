@@ -491,7 +491,7 @@ fieldset.field{border:0;margin:0;padding:0}
 .reel{padding-bottom:calc(var(--sec)*.6)}
 .reelBox{position:relative;margin:48px 0 0;border-radius:28px;overflow:hidden;background:#0B1030;aspect-ratio:16/9;box-shadow:0 40px 80px -40px rgba(11,16,48,.45)}
 .reelBox video{display:block;width:100%;height:100%;object-fit:cover}
-.reelSound{position:absolute;right:20px;bottom:20px;display:flex;align-items:center;gap:8px;padding:11px 18px 11px 14px;border:0;border-radius:999px;background:rgba(255,255,255,.92);color:#0B1030;font:600 15px/1 Sora,Inter,system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(8px);transition:background .25s,color .25s,transform .25s}
+.reelSound{position:absolute;right:20px;bottom:20px;display:flex;align-items:center;gap:8px;padding:11px 18px 11px 14px;border:0;border-radius:999px;background:rgba(255,255,255,.92);color:#0B1030;font:600 15px/1 Sora,Inter,system-ui,sans-serif;cursor:pointer;transition:background .25s,color .25s,transform .25s}
 .reelSound:hover{background:#fff;transform:translateY(-2px)}
 .reelSound svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .reelSound svg path:first-child{fill:currentColor}
@@ -567,12 +567,11 @@ fieldset.field{border:0;margin:0;padding:0}
    button floats at the top. It turns light over dark sections and dark over light ones, the mark turns as you
    scroll, and a line along its foot shows how far down the page you are. Wide screens only; phones keep their menu. ---------- */
 .dock{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;z-index:56;display:flex;align-items:center;gap:4px;height:58px;padding:0 7px 0 9px;border-radius:999px;
-  background:rgba(11,16,48,.88);color:#fff;box-shadow:0 18px 40px -18px rgba(11,16,48,.55),inset 0 0 0 1px rgba(255,255,255,.1);
-  -webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
+  background:rgba(11,16,48,.96);color:#fff;box-shadow:0 18px 40px -18px rgba(11,16,48,.55),inset 0 0 0 1px rgba(255,255,255,.1);
   transform:translate(-50%,-140%);opacity:0;visibility:hidden;overflow:hidden;
   transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .35s,visibility 0s linear .55s,background-color .35s,color .35s,box-shadow .35s}
 .dock.show{transform:translate(-50%,0);opacity:1;visibility:visible;transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .35s,visibility 0s,background-color .35s,color .35s,box-shadow .35s}
-.dock.light{background:rgba(255,255,255,.9);color:#0B1030;box-shadow:0 18px 40px -18px rgba(11,16,48,.4),inset 0 0 0 1px rgba(11,16,48,.08)}
+.dock.light{background:rgba(255,255,255,.97);color:#0B1030;box-shadow:0 18px 40px -18px rgba(11,16,48,.4),inset 0 0 0 1px rgba(11,16,48,.08)}
 .dockMark{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;margin-right:6px}
 .dockMark img{width:30px;height:28px;display:block;will-change:transform}
 .dock.show .dockMark img{filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
@@ -661,7 +660,3 @@ fieldset.field{border:0;margin:0;padding:0}
 }
 @media (prefers-reduced-motion:reduce){.hgBox{transition:none}}
 
-/* still layout for design capture (?flat): the teams stack and nothing sticks */
-html.fx .track{flex-direction:column;width:auto;min-height:0}
-html.fx .tIntro,html.fx .team{width:auto}
-html.fx .card{position:static}

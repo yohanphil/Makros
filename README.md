@@ -1,71 +1,61 @@
 # Makros Solutions website
 
-Six pages plus a page for broken links:
+A static site in plain HTML, CSS and JavaScript. It has no build step and no server code, and every library is stored inside the project, so it runs on any web host.
 
-| File | Page |
-|---|---|
-| index.html | Home |
-| technology.html | Technology |
-| operations.html | Operations |
-| studio.html | Studio |
-| about.html | About |
-| contact.html | Contact |
-| 404.html | Shown automatically when a link is wrong |
+## Structure
 
-## Put it live on GitHub Pages
-
-1. Sign in at github.com and create a new repository called **makros**. Set it to **Public** (Pages on a private repository needs a paid plan). Leave the other boxes unticked.
-2. On the empty repository page, click **uploading an existing file**.
-3. Open the makros folder on your computer, select everything inside it (all the .html files, README.md and the **assets** folder) and drag it into the browser window. Wait until every file shows in the list, then click **Commit changes**.
-4. Go to **Settings**, then **Pages**. Under Build and deployment, set Source to **Deploy from a branch**, choose the **main** branch and the **/ (root)** folder, then click **Save**.
-5. Wait one or two minutes and refresh that screen. Your public link appears at the top:
-   `https://YOURNAME.github.io/makros/`
-
-Each page has its own address, for example `https://YOURNAME.github.io/makros/technology.html`.
-
-## Make the link preview picture show
-
-WhatsApp, LinkedIn and Facebook need the full web address of the preview picture. Every page has this line:
-
-```html
-<meta property="og:image" content="https://USERNAME.github.io/makros/assets/img/share.png">
+```
+/
+├── index.html            Home
+├── technology.html       Technology
+├── operations.html       Operations (outsourcing)
+├── studio.html           Studio
+├── about.html            About
+├── contact.html          Contact
+├── 404.html              Shown for broken links
+├── .htaccess             Apache: HTTPS, clean addresses, compression, caching, 404 page
+├── robots.txt
+├── sitemap.xml
+└── assets/
+    ├── css/
+    │   ├── fonts.css     @font-face rules for the self-hosted fonts
+    │   ├── site.css      Layout, components and pages
+    │   └── motion.css    Animation styles
+    ├── js/
+    │   └── site.js       All site behaviour (3D cube, scroll, menus, forms)
+    ├── vendor/           Third-party libraries, unmodified
+    │   ├── three.min.js        three.js r128
+    │   ├── gsap.min.js         GSAP 3.12.5
+    │   ├── ScrollTrigger.min.js
+    │   └── lenis.min.js        Lenis 1.1.13 (smooth scrolling)
+    ├── fonts/            Sora and Inter, woff2, Latin subset
+    ├── img/              Logo, favicon, share image, icons
+    │   └── team/         Director avatars
+    └── video/            Trailer in 1080p (wide screens) and 720p (phones), plus its poster
 ```
 
-Swap **USERNAME** for your GitHub username in all seven HTML files. The quickest way: on the repository page press the full stop key ( . ) to open the web editor, press Ctrl+Shift+H (Cmd+Shift+H on a Mac) to search and replace across every file, replace USERNAME with your username, then commit from the Source Control panel on the left.
+## Running it locally
 
-## Updating a page
+Serve the folder with any static server. For example, from the project root:
 
-Open the file on GitHub and click the pencil icon, or upload a new version with the same file name. The live site updates within a minute or two.
-
-## Using the command line instead of uploading
-
-```bash
-cd makros
-git init
-git add .
-git commit -m "Makros website"
-git branch -M main
-git remote add origin https://github.com/YOURNAME/makros.git
-git push -u origin main
+```
+python3 -m http.server 8000
 ```
 
-Then do step 4 above.
+Then open http://localhost:8000. Opening the files directly from disk also works, except for the contact form.
 
-## Using a Makros domain later
+## Caching
 
-In Settings, Pages, Custom domain, enter something like `preview.makrossolutions.com`. At the company's domain provider, add a CNAME record for `preview` that points to `YOURNAME.github.io`. Tick Enforce HTTPS once it becomes available, and update the og:image lines to the new address.
+CSS, JS and video links end in `?v=13`. After changing any of those files, raise the number in every HTML page so that browsers fetch the new version.
 
-## Before this becomes the real Makros site
+## Contact forms
 
-* Every page has `<meta name="robots" content="noindex">` so search engines don't list the preview. Delete that line from every page when it goes live.
-* The footer says "Website design preview". Remove it at the same time.
-* The contact form opens the visitor's email app with the message written out and addressed to hello@makrossolutions.com. To receive messages without the email app, connect a form service such as Formspree.
-* The figures in the home page reports are examples and are labelled that way.
-* About shows the aligned vision and mission, built from the company’s own statements.
+The contact form and the short form at the end of each page send to hello@makrossolutions.com through FormSubmit. The first submission sends an "Activate Form" email to that inbox, and nothing is delivered until someone clicks the link in it.
 
-## What's inside
+## Deploying
 
-* `assets/css/site.css` holds all the styles.
-* `assets/js/site.js` runs the motion, the cube, the problem picker, the tabs and the form.
-* `assets/img` holds the browser tab icon, the phone home screen icon and the link preview picture.
-* Libraries load from public CDNs: three.js r128 (home page only), GSAP 3.12.5 with ScrollTrigger, and Lenis 1.1.13. Fonts are Sora and Inter from Google Fonts.
+Upload the contents of this folder to the web root over SFTP. Do not delete or overwrite the `.well-known` directory on the server, because it holds the SSL certificate validation files.
+
+## Before going live on makrossolutions.com
+
+Each page has `<meta name="robots" content="noindex">`, which keeps the preview out of search engines. Remove that line from all seven pages when the site goes live.

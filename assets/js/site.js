@@ -1,8 +1,8 @@
 (function(){
 /* Motion always plays. Visitors who ask their system for less motion keep normal scrolling instead of smooth scroll. */
-var RMQ=window.matchMedia('(prefers-reduced-motion: reduce)').matches,RM=/[?&]flat(=|&|$)/.test(location.search);
-/* ?flat lays the page out still and unpinned, every section in view, for design tools that capture the page */
-if(RM)document.documentElement.classList.add('fx');
+var RMQ=window.matchMedia('(prefers-reduced-motion: reduce)').matches,RM=false;
+/* scrolling: while the page moves, cubes nobody is touching draw every other frame so the scroll itself stays smooth */
+var lastScroll=0;window.addEventListener('scroll',function(){lastScroll=performance.now()},{passive:true});
 var FINE=window.matchMedia('(pointer: fine)').matches;
 var G=!!(window.gsap&&window.ScrollTrigger);
 if(G)gsap.registerPlugin(ScrollTrigger);
@@ -14,7 +14,7 @@ function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
 var lenis=null;
 if(window.Lenis&&!RMQ&&!RM){
   try{
-    lenis=new Lenis({lerp:.09,smoothWheel:true});
+    lenis=new Lenis({lerp:.13,smoothWheel:true,wheelMultiplier:1});
     if(G){lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000)});gsap.ticker.lagSmoothing(0)}
     else{(function raf(t){lenis.raf(t);requestAnimationFrame(raf)})(0)}
   }catch(e){lenis=null}
@@ -64,7 +64,8 @@ var cur=$('#cursor');
 if(FINE&&!RM){
   var cx=0,cy=0,tx=0,ty=0;
   window.addEventListener('pointermove',function(e){tx=e.clientX;ty=e.clientY;var t=e.target.closest&&e.target.closest('a,button,[data-hover]');cur.classList.toggle('big',!!t)},{passive:true});
-  (function loop(){cx+=(tx-cx)*.22;cy+=(ty-cy)*.22;cur.style.transform='translate('+cx+'px,'+cy+'px)';requestAnimationFrame(loop)})();
+  var cRaf=0;function loop(){cx+=(tx-cx)*.22;cy+=(ty-cy)*.22;cur.style.transform='translate('+cx+'px,'+cy+'px)';cRaf=(Math.abs(tx-cx)+Math.abs(ty-cy)>.3)?requestAnimationFrame(loop):0}
+  window.addEventListener('pointermove',function(){if(!cRaf)cRaf=requestAnimationFrame(loop)},{passive:true});
   document.addEventListener('pointerover',function(e){var b=e.target.closest&&e.target.closest('.mag');if(!b||b._mag)return;b._mag=1;
     b.addEventListener('pointermove',function(ev){var r=b.getBoundingClientRect();b.style.transform='translate('+((ev.clientX-r.left-r.width/2)*.22)+'px,'+((ev.clientY-r.top-r.height/2)*.32)+'px)'});
     b.addEventListener('pointerleave',function(){b.style.transform=''});
@@ -112,9 +113,10 @@ var Cube=(function(){
     GEO={body:b,tile:t};return GEO}
   function view(host,opts){
     opts=opts||{};
-    var r;try{r=new THREE.WebGLRenderer({antialias:true,alpha:true})}catch(e){return null}
+    var DPR=Math.min(window.devicePixelRatio||1,1.5);
+    var r;try{r=new THREE.WebGLRenderer({antialias:DPR<1.5,alpha:true,powerPreference:'high-performance'})}catch(e){return null}
     if(!r.getContext())return null;
-    r.setPixelRatio(Math.min(window.devicePixelRatio||1,2));r.setClearColor(0,0);host.appendChild(r.domElement);
+    r.setPixelRatio(DPR);r.setClearColor(0,0);host.appendChild(r.domElement);
     var cv=r.domElement;cv.style.display='block';
     var scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(26,1,.1,100);
     var YAW=36*Math.PI/180,PIT=27*Math.PI/180,DIST=12;
@@ -143,7 +145,8 @@ var Cube=(function(){
     if(opts.tilt&&FINE&&!RM){var area=opts.tilt;area.addEventListener('pointermove',function(e){var b=area.getBoundingClientRect();tgy=((e.clientX-b.left)/b.width-.5)*.3;tgx=((e.clientY-b.top)/b.height-.5)*.16});area.addEventListener('pointerleave',function(){tgx=0;tgy=0})}
     if(window.IntersectionObserver)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(host);
     function draw(now){rx+=(tgx-rx)*.07;ry+=(tgy-ry)*.07;ia+=((ex.idle?1:0)-ia)*.03;var tt=now/1000;root.rotation.x=rx+ux+ex.scroll*.35+Math.sin(tt*.9)*.06*ia;root.rotation.y=ry+uy+ex.spin+ex.scroll*Math.PI*.5+Math.sin(tt*.6)*.28*ia;root.position.y=ex.lift+Math.sin(tt*1.5)*.14*ia;var s=1;if(pop>0){var t=(now-pop)/520;if(t<1)s=1+.07*Math.sin(Math.PI*t);else pop=-1}root.scale.setScalar(s*ex.scale);if(opts.tick)opts.tick(now);r.render(scene,cam)}
-    (function loop(now){if(vis&&!document.hidden&&host.offsetParent!==null&&(!opts.active||opts.active()))draw(now);requestAnimationFrame(loop)})(0);
+    var fr=0,held=false;cv.addEventListener('pointerdown',function(){held=true});window.addEventListener('pointerup',function(){held=false});
+    (function loop(now){fr++;if(vis&&!document.hidden&&host.offsetParent!==null&&(!opts.active||opts.active())&&(held||now-lastScroll>140||fr%2===0))draw(now);requestAnimationFrame(loop)})(0);
     /* turning rows by hand */
     var P=opts.play;
     if(P){
@@ -790,6 +793,7 @@ arrive();
   // trailer: plays muted while on screen, sound on restarts it from the top
   (function(){var v=document.getElementById('reelVid'),b=document.getElementById('reelSound');if(!v||!b)return;
     var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,seen=false;
+    var big=(window.innerWidth*(window.devicePixelRatio||1))>=1400;v.src='assets/video/makros-trailer-'+(big?'1080':'720')+'.mp4?v=6';
     function play(){var p=v.play();if(p&&p.catch)p.catch(function(){})}
     if('IntersectionObserver'in window){new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){if(!calm||!v.muted||seen)play();}else v.pause()})},{threshold:.35}).observe(v)}else if(!calm)play();
     b.addEventListener('click',function(){var on=v.muted;v.muted=!on;if(on){v.currentTime=0;seen=true;play()}b.setAttribute('aria-pressed',on?'true':'false');b.querySelector('span').textContent=on?'Sound off':'Sound on'});
