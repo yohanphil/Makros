@@ -1,6 +1,8 @@
 (function(){
 /* Motion always plays. Visitors who ask their system for less motion keep normal scrolling instead of smooth scroll. */
-var RMQ=window.matchMedia('(prefers-reduced-motion: reduce)').matches,RM=false;
+var RMQ=window.matchMedia('(prefers-reduced-motion: reduce)').matches,RM=/[?&]flat(=|&|$)/.test(location.search);
+/* ?flat lays the page out still and unpinned, every section in view, for design tools that capture the page */
+if(RM)document.documentElement.classList.add('fx');
 var FINE=window.matchMedia('(pointer: fine)').matches;
 var G=!!(window.gsap&&window.ScrollTrigger);
 if(G)gsap.registerPlugin(ScrollTrigger);
@@ -10,7 +12,7 @@ function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
 
 /* ---------- smooth scroll ---------- */
 var lenis=null;
-if(window.Lenis&&!RMQ){
+if(window.Lenis&&!RMQ&&!RM){
   try{
     lenis=new Lenis({lerp:.09,smoothWheel:true});
     if(G){lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000)});gsap.ticker.lagSmoothing(0)}
