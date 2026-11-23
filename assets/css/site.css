@@ -661,3 +661,8 @@ fieldset.field{border:0;margin:0;padding:0}
 }
 @media (prefers-reduced-motion:reduce){.hgBox{transition:none}}
 
+.ava{position:relative}
+.ava picture{position:absolute;inset:0}
+.ava .ph{opacity:0;animation:avaSwap 10s ease-in-out infinite}
+@keyframes avaSwap{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.ava .ph{animation:none}}
