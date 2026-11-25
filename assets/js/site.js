@@ -267,6 +267,7 @@ function burst(){
 /* left alone, the cube rests a few seconds, then scrambles and solves again; a visitor playing with it pauses that */
 function scheduleAuto(){clearTimeout(autoT);autoT=setTimeout(function auto(){if(heroBusy)return;if(playing||hovering||!heroVis||document.hidden){autoT=setTimeout(auto,1500);return}heroReplay()},6500)}
 function say(t){if(cubeHint)cubeHint.textContent=t}
+(function(){var tm=$('#tryMe'),hr=$('#heroR');if(!tm||!hr)return;function gone(){tm.classList.add('gone')}hr.addEventListener('pointerdown',gone,{once:true});hr.addEventListener('touchstart',gone,{once:true,passive:true})})();
 function solvedMoment(byHand){
   if(hero){hero.pop();hero.set({spin:hero.get().spin%(Math.PI*2),idle:hovering?0:1})}else if(heroSvg)heroSvg.pop();
   burst();heroBusy=false;heroHist=[];playing=false;$('#heroR')&&$('#heroR').classList.toggle('playing',hovering);
@@ -598,7 +599,9 @@ opts('indOpts',function(v){ind=v});opts('sizeOpts',function(v){size=v});
 /* ---------- leads ----------
    Every form sends straight to the Makros inbox through FormSubmit. If that fails, or before the inbox has confirmed
    the form once, the visitor's email app opens with their details ready instead, so no lead is lost. */
-var LEAD_TO='hello@makrossolutions.com';
+var CK={phone:'NDA5MCAwMDMgNzcgNDkr',hello:'bW9jLnNub2l0dWxvc3NvcmthbUBvbGxlaA==',dilshan:'bW9jLnNub2l0dWxvc3NvcmthbUBuYWhzbGlk',dimitri:'bW9jLnNub2l0dWxvc3NvcmthbUBpcnRpbWlk'};
+function ck(k){try{return atob(CK[k]).split('').reverse().join('')}catch(e){return ''}}
+var LEAD_TO=ck('hello');
 function sendLead(d){
   if(d._honey)return Promise.resolve('sent');
   var body={_subject:'Makros website lead: '+d.Name+(d.Source?' ('+d.Source+')':''),_template:'table',_captcha:'false'},k,lines=[];
@@ -703,12 +706,14 @@ if(form){
     sendLead({Name:nv,Company:$('#f-co').value.trim(),Email:em.value.trim(),Phone:$('#f-phone').value.trim(),Interested_in:needs,Message:$('#f-msg').value.trim(),Source:'Contact page form',_honey:''}).then(function(how){
       btn.disabled=false;btn.innerHTML=label;
       $('#sName').textContent=firstName(nv);
-      $('#sentMsg').innerHTML=how==='sent'?'Your message is with the Makros directors. A director will reply personally.':'Your email app should now be open with your message ready. Press send there and it goes straight to the Makros directors. Nothing opened? Write to <a href="mailto:hello@makrossolutions.com">hello@makrossolutions.com</a>.';
+      $('#sentMsg').innerHTML=how==='sent'?'Your message is with the Makros directors. A director will reply personally.':'Your email app should now be open with your message ready. Press send there and it goes straight to the Makros directors. Nothing opened? Write to <a href="mailto:'+LEAD_TO+'">'+LEAD_TO+'</a>.';
       $('#formBody').hidden=true;$('#sent').hidden=false});
   });
   $('#again').addEventListener('click',function(){form.reset();$('#formBody').hidden=false;$('#sent').hidden=true;$('#f-name').focus()});
 }
-$$('.copyBtn').forEach(function(b){b.addEventListener('click',function(){var t=b.getAttribute('data-copy');function done(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1600)}function sel(){var s=b.previousElementSibling,r=document.createRange();r.selectNodeContents(s);var g=getSelection();g.removeAllRanges();g.addRange(r);b.textContent='Selected'}try{navigator.clipboard.writeText(t).then(done,sel)}catch(err){sel()}})});
+function reveal(a){var v=ck(a.getAttribute('data-k'));if(!v)return;a.textContent=v;a.href=(a.getAttribute('data-t')==='t'?'tel:'+v.replace(/\s/g,''):'mailto:'+v);a.classList.add('on');a.removeAttribute('aria-label')}
+$$('.rv').forEach(function(a){a.setAttribute('aria-label',a.textContent);a.addEventListener('click',function(e){if(!a.classList.contains('on')){e.preventDefault();reveal(a)}})});
+$$('.copyBtn').forEach(function(b){b.addEventListener('click',function(){var t=ck(b.getAttribute('data-ck'));var l=b.previousElementSibling;if(l&&l.classList.contains('rv')&&!l.classList.contains('on'))reveal(l);function done(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1600)}function sel(){var s=b.previousElementSibling,r=document.createRange();r.selectNodeContents(s);var g=getSelection();g.removeAllRanges();g.addRange(r);b.textContent='Selected'}try{navigator.clipboard.writeText(t).then(done,sel)}catch(err){sel()}})});
 
 /* ---------- motion per page ---------- */
 var ctx=null,mm=null;

@@ -663,6 +663,16 @@ fieldset.field{border:0;margin:0;padding:0}
 
 .ava{position:relative}
 .ava picture{position:absolute;inset:0}
-.ava .ph{opacity:0;animation:avaSwap 10s ease-in-out infinite}
-@keyframes avaSwap{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
+.ava .ph{opacity:0;animation:avaSwap 14s ease-in-out infinite}
+@keyframes avaSwap{0%,30%{opacity:0;filter:blur(0)}40%{filter:blur(1.5px)}50%,80%{opacity:1;filter:blur(0)}90%{filter:blur(1.5px)}100%{opacity:0;filter:blur(0)}}
 @media (prefers-reduced-motion:reduce){.ava .ph{animation:none}}
+
+.rv:not(.on){text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px;cursor:pointer}
+
+.tryMe{position:absolute;left:2%;top:4%;z-index:3;display:flex;align-items:flex-start;gap:2px;color:#4A4FE6;pointer-events:none;transition:opacity .5s,transform .5s;animation:tryBob 2.6s ease-in-out infinite}
+.tryMe span{font-weight:700;font-size:20px;letter-spacing:-.01em;background:#fff;border:2px solid currentColor;border-radius:999px;padding:6px 16px;transform:rotate(-6deg);box-shadow:0 6px 18px rgba(74,79,230,.18);white-space:nowrap}
+.tryMe svg{width:92px;height:69px;margin-top:14px}
+.heroR:hover .tryMe,.heroR.playing .tryMe,.tryMe.gone{opacity:0;transform:translateY(-6px);animation:none}
+@keyframes tryBob{0%,100%{translate:0 0}50%{translate:4px 5px}}
+@media (prefers-reduced-motion:reduce){.tryMe{animation:none}}
+@media (max-width:900px){.tryMe{left:0;top:0}.tryMe span{font-size:16px;padding:5px 12px}.tryMe svg{width:64px;height:48px}}
