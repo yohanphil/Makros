@@ -29,9 +29,9 @@ var bar=$('#bar'),lastY=0,dock=null,WIDE=window.matchMedia?window.matchMedia('(m
 (function(){
   var links=$$('#nav .nl'),cta=$('#nav .btn');if(!links.length)return;
   dock=document.createElement('nav');dock.className='dock';dock.setAttribute('aria-label','Quick menu');
-  dock.innerHTML='<a class="dockMark" href="index.html" aria-label="Makros home"><img src="assets/img/mks-logo.svg" alt="" width="30" height="28"></a>'+
+  dock.innerHTML='<a class="dockMark" href="./" aria-label="Makros home"><img src="assets/img/mks-logo.svg" alt="" width="30" height="28"></a>'+
     links.map(function(l){var t=(l.querySelector('[data-t]')||l).getAttribute('data-t')||l.textContent.trim();return '<a class="dockL" href="'+l.getAttribute('href')+'"'+(l.getAttribute('aria-current')?' aria-current="page"':'')+'>'+t+'</a>'}).join('')+
-    '<a class="dockCta" href="'+(cta?cta.getAttribute('href'):'contact.html')+'">'+(cta?cta.textContent.trim():'Start a conversation')+'</a><i class="dockProg" aria-hidden="true"></i>';
+    '<a class="dockCta" href="'+(cta?cta.getAttribute('href'):'contact')+'">'+(cta?cta.textContent.trim():'Start a conversation')+'</a><i class="dockProg" aria-hidden="true"></i>';
   document.body.appendChild(dock);
 })();
 var dockMark=dock&&dock.querySelector('.dockMark img'),dockTone=-1,dockRaf=0;
@@ -537,14 +537,14 @@ if(hero||heroSvg){
 
 /* ---------- live tool ---------- */
 var PROBS=[
- {t:'Our systems don’t talk to each other',team:'Makros Technology',svc:'Digital transformation and ERP implementations',href:'technology.html'},
- {t:'We worry about a cyber attack',team:'Makros Technology',svc:'Cyber security, with 24x7 monitoring from our Security Operations Centre',href:'technology.html'},
- {t:'We have an audit or ISO deadline',team:'Makros Technology',svc:'IT compliance and governance, ISO 27001 implementation',href:'technology.html'},
- {t:'Finance takes over our week',team:'Makros Operations',svc:'Managed finance, from receipts to monthly statements',href:'operations.html'},
- {t:'We need skilled people, fast',team:'Makros Operations',svc:'Augmented teams on our payroll, working as part of yours',href:'operations.html'},
- {t:'Our brand looks dated',team:'Makros Studio',svc:'Brand identity, company profile and a new website',href:'studio.html'},
- {t:'We need an app or a new website',team:'Makros Technology and Studio',svc:'Mobile and website development, designed by the Studio',href:'technology.html'},
- {t:'We are launching something soon',team:'Makros Studio',svc:'Launch film, 3D renders, photography and the campaign',href:'studio.html'}
+ {t:'Our systems don’t talk to each other',team:'Makros Technology',svc:'Digital transformation and ERP implementations',href:'technology'},
+ {t:'We worry about a cyber attack',team:'Makros Technology',svc:'Cyber security, with 24x7 monitoring from our Security Operations Centre',href:'technology'},
+ {t:'We have an audit or ISO deadline',team:'Makros Technology',svc:'IT compliance and governance, ISO 27001 implementation',href:'technology'},
+ {t:'Finance takes over our week',team:'Makros Operations',svc:'Managed finance, from receipts to monthly statements',href:'operations'},
+ {t:'We need skilled people, fast',team:'Makros Operations',svc:'Augmented teams on our payroll, working as part of yours',href:'operations'},
+ {t:'Our brand looks dated',team:'Makros Studio',svc:'Brand identity, company profile and a new website',href:'studio'},
+ {t:'We need an app or a new website',team:'Makros Technology and Studio',svc:'Mobile and website development, designed by the Studio',href:'technology'},
+ {t:'We are launching something soon',team:'Makros Studio',svc:'Launch film, 3D renders, photography and the campaign',href:'studio'}
 ];
 var live=null,liveState=null,liveHist=[],liveBusy=false,picked={};
 if(Cube&&$('#liveCube')){live=Cube.view($('#liveCube'),{});if(live){liveState=Cube.solved();live.show(liveState);$('#liveCube .fallback').style.opacity='0'}}
@@ -606,7 +606,7 @@ function sendLead(d){
   if(d._honey)return Promise.resolve('sent');
   var body={_subject:'Makros website lead: '+d.Name+(d.Source?' ('+d.Source+')':''),_template:'table',_captcha:'false'},k,lines=[];
   for(k in d)if(d[k]&&k!=='_honey'){body[k]=d[k];lines.push(k+': '+d[k])}
-  body.Page=(location.pathname.split('/').pop()||'index.html');
+  body.Page=(location.pathname.split('/').pop()||'home');
   var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort()},9000);
   return fetch('https://formsubmit.co/ajax/'+LEAD_TO,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})
     .then(function(r){return r.json()})
@@ -643,9 +643,9 @@ function firstName(n){return n.trim().split(/\s+/)[0]}
 
 /* the nudge: one small card a minute into the visit, once a visit (never on Contact, never after a lead). It does not
    ask for details itself; it points to the contact form, with WhatsApp as the quick alternative. */
-var FORM_URL='contact.html#cform';
+var FORM_URL='contact#cform';
 (function(){
-  if(/contact\.html$/.test(location.pathname)||!$('main'))return;
+  if(/\/contact(\.html)?$/.test(location.pathname)||!$('main'))return;
   var seen=false;try{seen=sessionStorage.getItem('mkNudge')||localStorage.getItem('mkLead')}catch(e){}
   if(seen)return;
   var el=document.createElement('div');el.className='nd';el.hidden=true;el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-labelledby','nd-h');
@@ -672,7 +672,7 @@ var FORM_URL='contact.html#cform';
 /* the hanging button: a tag on a string at the top right that turns between Stuck? and Need to speak? like a cube face,
    swings when the page scrolls and now and then on its own, and takes people to the contact form. On phones it sits at the bottom left. */
 (function(){
-  if(/contact\.html$/.test(location.pathname)||!$('main'))return;
+  if(/\/contact(\.html)?$/.test(location.pathname)||!$('main'))return;
   var b=document.createElement('button');b.type='button';b.className='hang';b.setAttribute('aria-label','Stuck? Need to speak? Talk to a director');
   b.innerHTML='<span class="hgSw" aria-hidden="true"><span class="hgStr"></span><span class="hgTag"><span class="hgBox">'+
     '<span class="hgF"><img src="assets/img/mks-logo.svg" alt="" width="20" height="19">Stuck?</span><span class="hgT">Need to speak?</span></span></span></span>';
@@ -782,10 +782,11 @@ document.addEventListener('click',function(e){
   var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
   var h=a.getAttribute('href');
   if(!h||h.charAt(0)==='#'||(a.target&&a.target!=='_self')||a.hasAttribute('download'))return;
-  if(a.origin!==location.origin||!/\.html$/.test(a.pathname))return;
+  function clean(p){return p.replace(/\.html$/,'').replace(/\/index$/,'/')}
+  if(a.origin!==location.origin||/\.(?!html$)[a-z0-9]+$/i.test(a.pathname))return;
   e.preventDefault();
   if(navOpen)setMenu(false);
-  if(a.pathname===location.pathname){toTop();return}
+  if(clean(a.pathname)===clean(location.pathname)){toTop();return}
   if(RM||leaving){location.href=a.href;return}
   leaving=true;try{sessionStorage.setItem('mkw','1')}catch(err){}
   wipe.className='in';setTimeout(function(){location.href=a.href},480);
