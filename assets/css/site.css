@@ -669,10 +669,20 @@ fieldset.field{border:0;margin:0;padding:0}
 
 .rv:not(.on){text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px;cursor:pointer}
 
-.tryMe{position:absolute;left:2%;top:4%;z-index:3;display:flex;align-items:flex-start;gap:2px;color:#4A4FE6;pointer-events:none;transition:opacity .5s,transform .5s;animation:tryBob 2.6s ease-in-out infinite}
-.tryMe span{font-weight:700;font-size:20px;letter-spacing:-.01em;background:#fff;border:2px solid currentColor;border-radius:999px;padding:6px 16px;transform:rotate(-6deg);box-shadow:0 6px 18px rgba(74,79,230,.18);white-space:nowrap}
-.tryMe svg{width:92px;height:69px;margin-top:14px}
+.tryMe{position:absolute;right:2%;top:4%;z-index:3;display:flex;flex-direction:row-reverse;align-items:flex-start;gap:2px;color:#4A4FE6;pointer-events:none;transition:opacity .5s,transform .5s;animation:tryBob 2.6s ease-in-out infinite}
+.tryMe span{font-weight:700;font-size:20px;letter-spacing:-.01em;background:#fff;border:2px solid currentColor;border-radius:999px;padding:6px 16px;transform:rotate(6deg);box-shadow:0 6px 18px rgba(74,79,230,.18);white-space:nowrap}
+.tryMe svg{width:92px;height:69px;margin-top:14px;transform:scaleX(-1)}
 .heroR:hover .tryMe,.heroR.playing .tryMe,.tryMe.gone{opacity:0;transform:translateY(-6px);animation:none}
-@keyframes tryBob{0%,100%{translate:0 0}50%{translate:4px 5px}}
+@keyframes tryBob{0%,100%{translate:0 0}50%{translate:-4px 5px}}
 @media (prefers-reduced-motion:reduce){.tryMe{animation:none}}
 @media (max-width:900px){.tryMe{left:0;top:0}.tryMe span{font-size:16px;padding:5px 12px}.tryMe svg{width:64px;height:48px}}
+/* WhatsApp chat icon under Talk to us and in General enquiries */
+.socRow.waRow{margin-top:10px;align-items:center}
+.socRow.big.waRow{margin-top:10px}
+.waLbl{font-size:15px;color:var(--ink2,#5B6180)}
+/* home page: painted director portraits, a little larger than the old initials */
+.ava.art{width:clamp(108px,10.5vw,150px);border-radius:28px;box-shadow:0 10px 30px rgba(11,16,48,.14)}
+/* About: a small lift on the value cards when pointed at */
+.valCard{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+@media (hover:hover){.valCard:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(11,16,48,.08)}}
+@media (prefers-reduced-motion:reduce){.valCard{transition:none}.valCard:hover{transform:none}}

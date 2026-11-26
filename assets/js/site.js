@@ -142,7 +142,7 @@ var Cube=(function(){
     function fit(){var w=host.clientWidth,hh=host.clientHeight;if(!w||!hh)return;r.setSize(w,hh,false);cv.style.width='100%';cv.style.height='100%';var a=w/hh;cam.aspect=a;var R=opts.R||(w<700?3.3:2.75),t=Math.tan(cam.fov*Math.PI/360);DIST=a>=1?R/t:R/(t*a);placeCam();cam.updateProjectionMatrix()}
     fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(host);else window.addEventListener('resize',fit);
     var tgx=0,tgy=0,rx=0,ry=0,ux=0,uy=0,vis=true,pop=-1,ex={spin:0,lift:0,scale:1,idle:0,scroll:0},ia=0;
-    if(opts.tilt&&FINE&&!RM){var area=opts.tilt;area.addEventListener('pointermove',function(e){var b=area.getBoundingClientRect();tgy=((e.clientX-b.left)/b.width-.5)*.3;tgx=((e.clientY-b.top)/b.height-.5)*.16});area.addEventListener('pointerleave',function(){tgx=0;tgy=0})}
+    if(opts.tilt&&FINE&&!RM){var area=opts.tilt;area.addEventListener('pointermove',function(e){if(held)return;var b=area.getBoundingClientRect();tgy=((e.clientX-b.left)/b.width-.5)*.3;tgx=((e.clientY-b.top)/b.height-.5)*.16});area.addEventListener('pointerleave',function(){tgx=0;tgy=0})}
     if(window.IntersectionObserver)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(host);
     function draw(now){rx+=(tgx-rx)*.07;ry+=(tgy-ry)*.07;ia+=((ex.idle?1:0)-ia)*.03;var tt=now/1000;root.rotation.x=rx+ux+ex.scroll*.35+Math.sin(tt*.9)*.06*ia;root.rotation.y=ry+uy+ex.spin+ex.scroll*Math.PI*.5+Math.sin(tt*.6)*.28*ia;root.position.y=ex.lift+Math.sin(tt*1.5)*.14*ia;var s=1;if(pop>0){var t=(now-pop)/520;if(t<1)s=1+.07*Math.sin(Math.PI*t);else pop=-1}root.scale.setScalar(s*ex.scale);if(opts.tick)opts.tick(now);r.render(scene,cam)}
     var fr=0,held=false;cv.addEventListener('pointerdown',function(){held=true});window.addEventListener('pointerup',function(){held=false});
@@ -168,7 +168,7 @@ var Cube=(function(){
       cv.addEventListener('pointermove',function(e){
         if(!drag||drag.done)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
         if(drag.orbit){uy=drag.uy+dx*.008;ux=Math.max(-.7,Math.min(.7,drag.ux+dy*.006));return}
-        if(Math.hypot(dx,dy)<12)return;
+        if(Math.hypot(dx,dy)<(e.pointerType==='touch'?12:7))return;
         var s0=toScreen(drag.p),best=null,bs=-1;
         ['x','y','z'].forEach(function(u){if(u===drag.na)return;var s1=toScreen(drag.p.clone().add(AXV[u].clone().multiplyScalar(.5))),vx=s1.x-s0.x,vy=s1.y-s0.y,l=Math.hypot(vx,vy)||1,sc=Math.abs((dx*vx+dy*vy)/l);if(sc>bs){bs=sc;best=u}});
         var A=['x','y','z'].filter(function(k){return k!==drag.na&&k!==best})[0],l=Math.round(drag.c.position[A]);
@@ -239,14 +239,14 @@ function SvgCube(svg){
 }
 
 var hero=null,heroSvg=null,heroState=null,heroBusy=false,heroVis=true,autoT=0,replayBtn=$('#replay'),solveCubeBtn=$('#solveCube'),sparks=$('#sparks'),heroFb=$('#heroFallback'),cubeHint=$('#cubeHint');
-var heroHist=[],playing=false,hovering=false;
+var heroHist=[],playing=false,hovering=false,userTurns=0,turning=false,turnQ=[];
 /* which colour each sticker carries, so we can tell when a visitor has solved it by hand */
 var STICK=(function(){if(!window.THREE)return [];var o=[];var i=0;for(var x=-1;x<=1;x++)for(var y=-1;y<=1;y++)for(var z=-1;z<=1;z++){var l=[];if(x)l.push(new THREE.Vector3(x,0,0));if(y)l.push(new THREE.Vector3(0,y,0));if(z)l.push(new THREE.Vector3(0,0,z));o.push(l);i++}return o})();
 function isSolved(st){var faces={};for(var i=0;i<27;i++){STICK[i].forEach(function(n){var w=n.clone().applyQuaternion(st[i].q);var k=(Math.round(w.x)+','+Math.round(w.y)+','+Math.round(w.z));var c=n.x+','+n.y+','+n.z;if(faces[k]&&faces[k]!==c)faces[k]='mixed';else if(!faces[k])faces[k]=c})}return Object.keys(faces).every(function(k){return faces[k]!=='mixed'})}
 function tidy(seq){var out=[];seq.forEach(function(m){var p=out[out.length-1];if(p&&p.a===m.a&&p.l===m.l&&p.d===-m.d)out.pop();else out.push(m)});return out}
 function updBtns(){if(!solveCubeBtn)return;var can=heroHist.length>0&&!heroBusy;solveCubeBtn.disabled=!can;solveCubeBtn.classList.toggle('ready',can)}
 if(Cube&&$('#heroCube')){hero=Cube.view($('#heroCube'),{tilt:$('#hero'),play:{
-  canTurn:function(){return !heroBusy},
+  canTurn:function(){return !heroBusy||turning},
   turn:function(m){heroTurn(m)},
   touched:function(){clearTimeout(autoT);if(hero)hero.set({idle:0})},
   hover:function(on){hovering=on;$('#heroR').classList.toggle('playing',on||playing);if(on){clearTimeout(autoT);if(hero)hero.set({idle:0})}else if(!playing&&!heroBusy){if(hero)hero.set({idle:1});scheduleAuto()}}
@@ -270,7 +270,7 @@ function say(t){if(cubeHint)cubeHint.textContent=t}
 (function(){var tm=$('#tryMe'),hr=$('#heroR');if(!tm||!hr)return;function gone(){tm.classList.add('gone')}hr.addEventListener('pointerdown',gone,{once:true});hr.addEventListener('touchstart',gone,{once:true,passive:true})})();
 function solvedMoment(byHand){
   if(hero){hero.pop();hero.set({spin:hero.get().spin%(Math.PI*2),idle:hovering?0:1})}else if(heroSvg)heroSvg.pop();
-  burst();heroBusy=false;heroHist=[];playing=false;$('#heroR')&&$('#heroR').classList.toggle('playing',hovering);
+  burst();heroBusy=false;heroHist=[];userTurns=0;turnQ=[];turning=false;playing=false;$('#heroR')&&$('#heroR').classList.toggle('playing',hovering);
   say(byHand?'You solved it. Nicely done.':'Drag any row to turn it. Drag around the cube to look around.');
   if(replayBtn&&replayBtn.hidden){replayBtn.hidden=false;if(solveCubeBtn)solveCubeBtn.hidden=false;if(G)gsap.from([replayBtn,solveCubeBtn],{y:14,opacity:0,duration:.7,stagger:.08,ease:'power3.out',clearProps:'opacity,transform'})}
   updBtns();scheduleAuto();
@@ -300,16 +300,19 @@ function heroReplay(){
 }
 /* the visitor's own game */
 function heroTurn(m){
-  if(heroBusy)return;clearTimeout(autoT);playing=true;heroBusy=true;$('#heroR').classList.add('playing');hero.set({idle:0});
-  playMoves(hero,heroState,[m],230).then(function(s){heroState=s;heroHist.push(m);heroBusy=false;
+  /* a visitor who drags again while the last turn is still moving gets that turn queued, not a spin of the camera */
+  if(turning){if(turnQ.length<3)turnQ.push(m);return}
+  if(heroBusy)return;clearTimeout(autoT);playing=true;heroBusy=true;turning=true;$('#heroR').classList.add('playing');hero.set({idle:0});
+  playMoves(hero,heroState,[m],turnQ.length?160:230).then(function(s){heroState=s;heroHist.push(m);userTurns++;heroBusy=false;turning=false;
     if(isSolved(heroState)){solvedMoment(true);return}
-    say(heroHist.length+(heroHist.length===1?' turn.':' turns.')+' Stuck? Press Solve it.');updBtns()});
+    if(turnQ.length){heroTurn(turnQ.shift());return}
+    say(userTurns+(userTurns===1?' turn.':' turns.')+' Stuck? Press Solve it.');updBtns()});
 }
 function heroScramble(){
   if(!hero){heroReplay();return}
   if(heroBusy)return;clearTimeout(autoT);playing=true;heroBusy=true;$('#heroR').classList.add('playing');hero.set({idle:0});updBtns();
   var mv=Cube.rand(14);
-  playMoves(hero,heroState,mv,95,[0,Math.PI*2]).then(function(s){heroState=s;hero.set({spin:0});heroHist=heroHist.concat(mv);heroBusy=false;say('Your turn. Drag any row to turn it, or press Solve it.');updBtns()});
+  playMoves(hero,heroState,mv,95,[0,Math.PI*2]).then(function(s){heroState=s;hero.set({spin:0});heroHist=heroHist.concat(mv);userTurns=0;turnQ=[];heroBusy=false;say('Your turn. Drag any row to turn it, or press Solve it.');updBtns()});
 }
 function heroSolve(){
   if(!hero||heroBusy)return;var mv=tidy(Cube.inverse(heroHist));
@@ -597,21 +600,24 @@ function opts(id,set){$$('#'+id+' button').forEach(function(b){b.addEventListene
 opts('indOpts',function(v){ind=v});opts('sizeOpts',function(v){size=v});
 
 /* ---------- leads ----------
-   Every form sends straight to the Makros inbox through FormSubmit. If that fails, or before the inbox has confirmed
-   the form once, the visitor's email app opens with their details ready instead, so no lead is lost. */
+   Every form sends straight to the Makros hello inbox from our own server (mail.php), with FormSubmit as a backup.
+   The visitor never has to open their email app. */
 var CK={phone:'NDA5MCAwMDMgNzcgNDkr',hello:'bW9jLnNub2l0dWxvc3NvcmthbUBvbGxlaA==',dilshan:'bW9jLnNub2l0dWxvc3NvcmthbUBuYWhzbGlk',dimitri:'bW9jLnNub2l0dWxvc3NvcmthbUBpcnRpbWlk'};
 function ck(k){try{return atob(CK[k]).split('').reverse().join('')}catch(e){return ''}}
 var LEAD_TO=ck('hello');
 function sendLead(d){
   if(d._honey)return Promise.resolve('sent');
-  var body={_subject:'Makros website lead: '+d.Name+(d.Source?' ('+d.Source+')':''),_template:'table',_captcha:'false'},k,lines=[];
-  for(k in d)if(d[k]&&k!=='_honey'){body[k]=d[k];lines.push(k+': '+d[k])}
+  var body={},k;for(k in d)if(d[k]&&k!=='_honey')body[k]=d[k];
   body.Page=(location.pathname.split('/').pop()||'home');
-  var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort()},9000);
-  return fetch('https://formsubmit.co/ajax/'+LEAD_TO,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})
-    .then(function(r){return r.json()})
-    .then(function(j){clearTimeout(to);if(String(j.success)!=='true')throw 0;try{localStorage.setItem('mkLead','1')}catch(e){}return 'sent'})
-    .catch(function(){clearTimeout(to);location.href='mailto:'+LEAD_TO+'?subject='+encodeURIComponent('Website enquiry from '+d.Name)+'&body='+encodeURIComponent(lines.join('\n'));return 'mail'});
+  function post(url,payload){var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort()},10000);
+    return fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload),signal:ctl?ctl.signal:undefined})
+      .then(function(r){clearTimeout(to);if(!r.ok)throw 0;return r.json()})}
+  function ok(){try{localStorage.setItem('mkLead','1')}catch(e){}return 'sent'}
+  /* first our own server, which mails the hello inbox directly; then FormSubmit as a backup; the visitor never has to send an email themselves */
+  return post('mail.php',body).then(function(j){if(!j.ok)throw 0;return ok()})
+    .catch(function(){var fs={_subject:'Makros website lead: '+d.Name,_template:'table',_captcha:'false'};for(var x in body)fs[x]=body[x];
+      return post('https://formsubmit.co/ajax/'+LEAD_TO,fs).then(function(j){if(String(j.success)!=='true')throw 0;return ok()})})
+    .catch(function(){return 'fail'});
 }
 var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function reachOf(v){v=v.trim();if(EMAIL_RE.test(v))return {Email:v};if((v.match(/\d/g)||[]).length>=7)return {Phone:v};return null}
@@ -637,7 +643,7 @@ function firstName(n){return n.trim().split(/\s+/)[0]}
     var d={Name:n,Source:'End of page form: '+src.trim(),_honey:f.querySelector('.hp').value};for(var k in r)d[k]=r[k];
     b.disabled=true;b.textContent='Sending';
     sendLead(d).then(function(how){f.classList.add('done');
-      f.innerHTML='<div class="qlDone"><span class="qlTick" aria-hidden="true"></span><p><b>Thank you, '+firstName(n).replace(/[<>&"]/g,'')+'.</b> '+(how==='sent'?'A director will be in touch soon.':'Your email app is open with your details ready. Press send there to reach us.')+'</p></div>';
+      f.innerHTML='<div class="qlDone"><span class="qlTick" aria-hidden="true"></span><p><b>Thank you, '+firstName(n).replace(/[<>&"]/g,'')+'.</b> '+(how==='sent'?'A director will be in touch soon.':'Something went wrong on our side. Please WhatsApp us on <a href="https://wa.me/94773000904" target="_blank" rel="noopener">077 300 0904</a>.')+'</p></div>';
       try{sessionStorage.setItem('mkPop','1')}catch(e){}})});
 })();
 
@@ -653,7 +659,7 @@ var FORM_URL='contact#cform';
     '<img class="ndMark" src="assets/img/mks-logo.svg" alt="" width="56" height="53">'+
     '<h2 id="nd-h">Something tangled in your business?</h2>'+
     '<p>Tell us about it in a few lines. A director will get back to you personally.</p>'+
-    '<div class="ndActs"><a class="btn" href="'+FORM_URL+'">Fill in the form</a><a class="btn quiet" href="https://wa.link/lm68xa" target="_blank" rel="noopener">WhatsApp us instead</a></div>'+
+    '<div class="ndActs"><a class="btn" href="'+FORM_URL+'">Fill in the form</a><a class="btn quiet" href="https://wa.me/94773000904" target="_blank" rel="noopener">WhatsApp us instead</a></div>'+
     '<button class="ndLater" type="button" data-close>Maybe later</button></div>';
   document.body.appendChild(el);
   var back=null;
@@ -702,11 +708,12 @@ if(form){
     n.setAttribute('aria-invalid',String(!nv));em.setAttribute('aria-invalid',String(!ev));
     if(!nv||!ev){(nv?em:n).focus();return}
     var needs=$$('.need input:checked').map(function(c){return c.value}).join(', ');
-    var btn=form.querySelector('[type=submit]'),label=btn.innerHTML;btn.disabled=true;btn.textContent='Sending';
+    var btn=form.querySelector('[type=submit]'),label=btn.innerHTML;btn.disabled=true;if($('#sendErr'))$('#sendErr').hidden=true;btn.textContent='Sending';
     sendLead({Name:nv,Company:$('#f-co').value.trim(),Email:em.value.trim(),Phone:$('#f-phone').value.trim(),Interested_in:needs,Message:$('#f-msg').value.trim(),Source:'Contact page form',_honey:''}).then(function(how){
       btn.disabled=false;btn.innerHTML=label;
       $('#sName').textContent=firstName(nv);
-      $('#sentMsg').innerHTML=how==='sent'?'Your message is with the Makros directors. A director will reply personally.':'Your email app should now be open with your message ready. Press send there and it goes straight to the Makros directors. Nothing opened? Write to <a href="mailto:'+LEAD_TO+'">'+LEAD_TO+'</a>.';
+      if(how!=='sent'){$('#e-msg')&&($('#e-msg').textContent='');var er=$('#sendErr');if(er){er.hidden=false;er.focus&&er.focus()}return}
+      $('#sentMsg').textContent='Your message is with the Makros directors. A director will reply personally.';
       $('#formBody').hidden=true;$('#sent').hidden=false});
   });
   $('#again').addEventListener('click',function(){form.reset();$('#formBody').hidden=false;$('#sent').hidden=true;$('#f-name').focus()});
@@ -754,6 +761,22 @@ function initHome(page){
   gsap.fromTo('#name .nameGhost span',{xPercent:6},{xPercent:-30,ease:'none',scrollTrigger:{trigger:'#name',start:'top bottom',end:'bottom top',scrub:true}});
   gsap.from('#name .mTiles li',{rotationX:-100,opacity:0,transformOrigin:'50% 0%',duration:1,ease:'back.out(1.5)',stagger:.14,clearProps:'transform,opacity',scrollTrigger:{trigger:'#name .mTiles',start:'top 88%',once:true}});
 }
+/* About: quiet motion per section, in step with the rest of the site */
+function initAbout(page){
+  /* vision and mission slide in from either side and settle */
+  $$('.vmCard',page).forEach(function(c){var s=+c.getAttribute('data-side')||1;
+    gsap.from(c,{x:60*s,rotation:2*s,opacity:0,duration:1.1,ease:'power3.out',scrollTrigger:{trigger:c,start:'top 88%',once:true}});
+    gsap.from($$('p',c),{y:18,opacity:0,duration:.8,ease:'power3.out',stagger:.1,delay:.25,scrollTrigger:{trigger:c,start:'top 88%',once:true}})});
+  /* the five values turn into place like a row of the cube */
+  var vals=$$('.valCard',page);
+  if(vals.length)gsap.from(vals,{rotationX:-90,y:20,opacity:0,transformOrigin:'50% 0%',transformPerspective:700,duration:.95,ease:'back.out(1.4)',stagger:.1,clearProps:'transform,opacity',scrollTrigger:{trigger:vals[0],start:'top 88%',once:true}});
+  /* the directors: card rises, portrait settles, credentials pop in one by one */
+  $$('.pCard',page).forEach(function(c,i){var tl=gsap.timeline({scrollTrigger:{trigger:c,start:'top 88%',once:true},delay:i*.12});
+    tl.from(c,{y:40,opacity:0,duration:.9,ease:'power3.out'})
+      .from($$('.ava',c),{scale:.82,rotation:-4,opacity:0,duration:.8,ease:'back.out(1.6)'},'-=.6')
+      .from($$('h3,.ink2',c),{y:12,opacity:0,duration:.6,ease:'power3.out',stagger:.06},'-=.5')
+      .from($$('.creds li',c),{scale:.7,opacity:0,duration:.4,ease:'back.out(2)',stagger:.05},'-=.3')});
+}
 function initPage(name){
   if(ctx){ctx.revert();ctx=null}
   if(mm){mm.revert();mm=null}
@@ -763,6 +786,7 @@ function initPage(name){
   ctx=gsap.context(function(){
     reveals(page);
     if(name==='home')initHome(page);
+    if(name==='about')initAbout(page);
     $$('.kin [data-drift]',page).forEach(function(rw){var d=+rw.getAttribute('data-drift');gsap.fromTo(rw,{xPercent:d<0?0:-18},{xPercent:d<0?-18:0,ease:'none',scrollTrigger:{trigger:rw,start:'top bottom',end:'bottom top',scrub:true}})});
     $$('.loopGone',page).forEach(function(g){gsap.fromTo(g,{'--g':1},{'--g':0,duration:.9,ease:'power3.inOut',repeat:-1,yoyo:true,repeatDelay:1.6,delay:1})});
     var spans=$$('.giant span');gsap.from(spans,{yPercent:100,duration:1.1,ease:'power4.out',stagger:.06,scrollTrigger:{trigger:'#foot',start:'top 70%',once:true}});
